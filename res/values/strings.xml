@@ -2,9 +2,9 @@
 <resources>
 
     <string name="app_name">Xedroid</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="debug_tag">Xedroid</string>
 
+    <string name="action_settings">Settings</string>
     <string name="organisations_nodata">No data!</string>
 
 </resources>

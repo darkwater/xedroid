@@ -3,10 +3,10 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.novaember.xedroid.MainActivity">
+    tools:context="com.novaember.xedroid.OrganisationsActivity">
 
     <ListView
-        android:id="@+id/organisations"
+        android:id="@+id/locations"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"

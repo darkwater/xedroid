@@ -7,9 +7,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,35 +26,51 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity
+public class LocationsActivity extends ActionBarActivity
 {
-    protected static final String DEBUG_TAG = "Xedroid";
+    LocationAdapter locations;
+    LocationsActivity self;
 
-    OrganisationAdapter organisations;
+    int organisationId;
+    String organisationName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
     {
+        self = this;
+
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.organisations);
+		setContentView(R.layout.activity_locations);
 
-        organisations = new OrganisationAdapter(this);
-        new FetchOrganisationsTask().execute("http://xedule.novaember.com/organisations.json");
+        Intent intent = getIntent();
+        organisationId = intent.getIntExtra("organisationId", 0);
+        organisationName = intent.getStringExtra("organisationName");
 
-        ListView organisationsView = (ListView) findViewById(R.id.organisations);
-        organisationsView.setAdapter(organisations);
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle(organisationName);
+        bar.setDisplayHomeAsUpEnabled(true);
 
-        organisationsView.setOnItemClickListener(new OnItemClickListener()
+        locations = new LocationAdapter(this);
+        new FetchLocationsTask().execute("http://xedule.novaember.com/locations." + organisationId + ".json");
+
+        ListView locationsView = (ListView) findViewById(R.id.locations);
+        locationsView.setAdapter(locations);
+
+        locationsView.setOnItemClickListener(new OnItemClickListener()
         {
             public void onItemClick(AdapterView listview, View view, int pos, long id)
             {
                 try
                 {
-                    Log.d(DEBUG_TAG, ((Organisation) listview.getAdapter().getItem(pos)).name);
+                    Location loc = (Location) listview.getAdapter().getItem(pos);
+                    Intent intent = new Intent(self, LocationsActivity.class);
+                    intent.putExtra("locationId", loc.id);
+                    intent.putExtra("locationName", loc.name);
+                    startActivity(intent);
                 }
                 catch(Exception e)
                 {
-                    Log.d(DEBUG_TAG, "Error: " + e.getMessage());
+                    Log.d("Xedroid", "Error: " + e.getMessage());
                 }
             }
         });
@@ -80,14 +98,15 @@ public class MainActivity extends ActionBarActivity
 		return super.onOptionsItemSelected(item);
 	}
 
-    private class FetchOrganisationsTask extends AsyncTask<String, Void, String> {
+    private class FetchLocationsTask extends AsyncTask<String, Void, String>
+    {
         @Override
         protected String doInBackground(String... urls)
         {
             // params comes from the execute() call: params[0] is the url.
             try
             {
-                Log.d(DEBUG_TAG, "brb fetching " + urls[0]);
+                Log.d("Xedroid", "brb fetching " + urls[0]);
                 return Fetcher.downloadUrl(urls[0]);
             }
             catch (Exception e)
@@ -101,56 +120,56 @@ public class MainActivity extends ActionBarActivity
         {
             try
             {
-                Log.d(DEBUG_TAG, "Result! " + result.length());
-                Log.d(DEBUG_TAG, result);
-                organisations.addOrganisationsFromJSON(result);
+                Log.d("Xedroid", "Result! " + result.length());
+                Log.d("Xedroid", result);
+                locations.addLocationsFromJSON(result);
             }
             catch (JSONException e)
             {
-                Log.e(DEBUG_TAG, "Error: " + e.getMessage());
+                Log.e("Xedroid", "Error: " + e.getMessage());
             }
         }
     }
 }
 
-class Organisation implements Comparable<Organisation>
+class Location implements Comparable<Location>
 {
     public int id;
     public String name;
 
-    public Organisation(int id, String name)
+    public Location(int id, String name)
     {
         this.id = id;
         this.name = name;
     }
 
     @Override
-    public int compareTo(Organisation org)
+    public int compareTo(Location loc)
     {
-        return this.name.compareTo(org.name);
+        return this.name.compareTo(loc.name);
     }
 }
 
-class OrganisationAdapter extends BaseAdapter
+class LocationAdapter extends BaseAdapter
 {
     private Activity activity;
-    private ArrayList<Organisation> data;
+    private ArrayList<Location> data;
     private static LayoutInflater inflater = null;
 
-    public OrganisationAdapter(Activity a)
+    public LocationAdapter(Activity a)
     {
         activity = a;
-        data = new ArrayList<Organisation>();
+        data = new ArrayList<Location>();
 
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addOrganisation(Organisation org)
+    public void addLocation(Location loc)
     {
-        data.add(org);
+        data.add(loc);
     }
 
-    public void addOrganisationsFromJSON(String input) throws JSONException
+    public void addLocationsFromJSON(String input) throws JSONException
     {
         try
         {
@@ -158,15 +177,16 @@ class OrganisationAdapter extends BaseAdapter
 
             for (int i = 0; i < arr.length(); i++)
             {
-                JSONObject org = arr.getJSONObject(i);
-                this.addOrganisation(new Organisation(org.getInt("id"), org.getString("name")));
+                JSONObject loc = arr.getJSONObject(i);
+                this.addLocation(new Location(loc.getInt("id"), loc.getString("name")));
             }
 
             this.sort();
+            this.notifyDataSetChanged();
         }
-        catch(JSONException e)
+        catch (JSONException e)
         {
-            Log.d(MainActivity.DEBUG_TAG, "Error! " + e.getMessage());
+            Log.d("Xedroid", "Error! " + e.getMessage());
         }
     }
 
@@ -175,7 +195,7 @@ class OrganisationAdapter extends BaseAdapter
         return data.size();
     }
 
-    public Organisation getItem(int position)
+    public Location getItem(int position)
     {
         return data.get(position);
     }
@@ -194,11 +214,11 @@ class OrganisationAdapter extends BaseAdapter
     {
         TextView view = (TextView) convertView;
         if(convertView == null)
-            view = (TextView) inflater.inflate(R.layout.organisation_item, null);
+            view = (TextView) inflater.inflate(R.layout.location_item, null);
 
-        Organisation org = data.get(position);
+        Location loc = data.get(position);
 
-        view.setText(org.name);
+        view.setText(loc.name);
 
         return view;
     }
