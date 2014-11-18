@@ -33,6 +33,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.novaember.xedroid.OrganisationsActivity" />
         </activity>
+
+        <activity
+            android:name=".AttendeesActivity"
+            android:label="replace meee"
+            android:parentActivityName=".LocationsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.novaember.xedroid.LocationsActivity" />
+        </activity>
     </application>
 
 </manifest>

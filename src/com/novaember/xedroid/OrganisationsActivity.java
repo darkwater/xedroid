@@ -58,7 +58,7 @@ public class OrganisationsActivity extends ActionBarActivity
                 }
                 catch(Exception e)
                 {
-                    Log.d("Xedroid", "Error: " + e.getMessage());
+                    Log.e("Xedroid", "Error: " + e.getMessage());
                 }
             }
         });
@@ -94,7 +94,6 @@ public class OrganisationsActivity extends ActionBarActivity
             // params comes from the execute() call: params[0] is the url.
             try
             {
-                Log.d("Xedroid", "brb fetching " + urls[0]);
                 return Fetcher.downloadUrl(urls[0]);
             }
             catch (Exception e)
@@ -108,8 +107,6 @@ public class OrganisationsActivity extends ActionBarActivity
         {
             try
             {
-                Log.d("Xedroid", "Result! " + result.length());
-                Log.d("Xedroid", result);
                 organisations.addOrganisationsFromJSON(result);
             }
             catch (JSONException e)
@@ -174,7 +171,7 @@ class OrganisationAdapter extends BaseAdapter
         }
         catch (JSONException e)
         {
-            Log.d("Xedroid", "Error! " + e.getMessage());
+            Log.e("Xedroid", "Error! " + e.getMessage());
         }
     }
 

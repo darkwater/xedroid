@@ -63,14 +63,14 @@ public class LocationsActivity extends ActionBarActivity
                 try
                 {
                     Location loc = (Location) listview.getAdapter().getItem(pos);
-                    Intent intent = new Intent(self, LocationsActivity.class);
+                    Intent intent = new Intent(self, AttendeesActivity.class);
                     intent.putExtra("locationId", loc.id);
                     intent.putExtra("locationName", loc.name);
                     startActivity(intent);
                 }
                 catch(Exception e)
                 {
-                    Log.d("Xedroid", "Error: " + e.getMessage());
+                    Log.e("Xedroid", "Error: " + e.getMessage());
                 }
             }
         });
@@ -106,7 +106,6 @@ public class LocationsActivity extends ActionBarActivity
             // params comes from the execute() call: params[0] is the url.
             try
             {
-                Log.d("Xedroid", "brb fetching " + urls[0]);
                 return Fetcher.downloadUrl(urls[0]);
             }
             catch (Exception e)
@@ -120,8 +119,6 @@ public class LocationsActivity extends ActionBarActivity
         {
             try
             {
-                Log.d("Xedroid", "Result! " + result.length());
-                Log.d("Xedroid", result);
                 locations.addLocationsFromJSON(result);
             }
             catch (JSONException e)
@@ -186,7 +183,7 @@ class LocationAdapter extends BaseAdapter
         }
         catch (JSONException e)
         {
-            Log.d("Xedroid", "Error! " + e.getMessage());
+            Log.e("Xedroid", "Error! " + e.getMessage());
         }
     }
 

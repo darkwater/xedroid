@@ -1,5 +1,6 @@
 package com.novaember.xedroid;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,10 +16,7 @@ public class Fetcher
     public static String downloadUrl(String urlstr)
     {
         InputStream is = null;
-        // Only display the first 500 characters of the retrieved
-        // web page content.
-        int len = 2048;
-            
+
         try {
             URL url = new URL(urlstr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -26,14 +24,14 @@ public class Fetcher
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
-            // Starts the query
+            // Start the query
             conn.connect();
             String response = conn.getResponseMessage();
             Log.d("Xedule", "Response: " + response);
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
-            String contentAsString = readIt(is, len);
+            String contentAsString = readStream(is);
             return contentAsString;
         }
         catch (Exception e)
@@ -52,12 +50,42 @@ public class Fetcher
         }
     }
 
-    public static String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException
+    private static String readStream(InputStream in)
     {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");        
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer).trim();
+        BufferedReader reader = null;
+
+        try
+        {
+            reader = new BufferedReader(new InputStreamReader(in));
+
+            String line;
+            String out = "";
+            while ((line = reader.readLine()) != null)
+            {
+                out += line;
+            }
+
+            return out;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (reader != null)
+            {
+                try
+                {
+                    reader.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return "";
     }
 }
