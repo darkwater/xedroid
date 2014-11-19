@@ -8,4 +8,8 @@
     <string name="organisations_nodata">No data!</string>
     <string name="search_attendees">Zoeken</string>
 
+    <string name="attendee_type_class">Klas</string>
+    <string name="attendee_type_staff">Medewerker</string>
+    <string name="attendee_type_facility">Faciliteit</string>
+
 </resources>

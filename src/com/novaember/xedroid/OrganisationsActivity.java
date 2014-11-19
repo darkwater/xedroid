@@ -30,13 +30,13 @@ public class OrganisationsActivity extends ActionBarActivity
     OrganisationAdapter organisations;
     OrganisationsActivity self;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
     {
         self = this;
 
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_organisations);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_organisations);
 
         organisations = new OrganisationAdapter(this);
         new FetchOrganisationsTask().execute("http://xedule.novaember.com/organisations.json");
@@ -62,29 +62,29 @@ public class OrganisationsActivity extends ActionBarActivity
                 }
             }
         });
-	}
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
     {
         // Handle action bar item clicks here. The action bar will automatically
         // handle clicks on the Home/Up button, so long as you specify a parent
         // activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings)
+        int id = item.getItemId();
+        if (id == R.id.action_settings)
         {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private class FetchOrganisationsTask extends AsyncTask<String, Void, String>
     {

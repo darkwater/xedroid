@@ -26,8 +26,6 @@ public class Fetcher
             conn.setDoInput(true);
             // Start the query
             conn.connect();
-            String response = conn.getResponseMessage();
-            Log.d("Xedule", "Response: " + response);
             is = conn.getInputStream();
 
             // Convert the InputStream into a string

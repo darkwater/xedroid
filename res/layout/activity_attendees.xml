@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.novaember.xedroid.OrganisationsActivity">
+    tools:context="com.novaember.xedroid.AttendeesActivity">
 
     <EditText
         android:id="@+id/search_attendees"

@@ -2,7 +2,6 @@ package com.novaember.xedroid;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +33,11 @@ import android.widget.TextView;
 
 public class AttendeesActivity extends ActionBarActivity
 {
-    AttendeeAdapter attendees;
-    AttendeesActivity self;
+    private AttendeeAdapter attendees;
+    private AttendeesActivity self;
 
-    int locationId;
-    String locationName;
+    private int locationId;
+    private String locationName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -165,11 +164,48 @@ class Attendee implements Comparable<Attendee>
 {
     public int id;
     public String name;
+    public Type type;
 
-    public Attendee(int id, String name)
+    public enum Type
+    {
+        CLASS    (1, R.string.attendee_type_class),
+        STAFF    (2, R.string.attendee_type_staff),
+        FACILITY (3, R.string.attendee_type_facility);
+
+        public final int id;
+        public final int label;
+
+        private Type(int id, int label)
+        {
+            this.id = id;
+            this.label = label;
+        }
+
+        public static Type getById(int id) throws Exception
+        {
+            switch (id)
+            {
+                case 1:  return Type.CLASS;
+                case 2:  return Type.STAFF;
+                case 3:  return Type.FACILITY;
+                default: throw new Exception("Invalid attendee type: " + String.valueOf(id));
+            }
+        }
+    }
+
+    public Attendee(int id, String name, int type)
     {
         this.id = id;
         this.name = name;
+
+        try
+        {
+            this.type = Type.getById(type);
+        }
+        catch (Exception e)
+        {
+            Log.e("Xedule", "Error: " + e.getMessage());
+        }
     }
 
     @Override
@@ -209,7 +245,7 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
             for (int i = 0; i < arr.length(); i++)
             {
                 JSONObject att = arr.getJSONObject(i);
-                this.addAttendee(new Attendee(att.getInt("id"), att.getString("name")));
+                this.addAttendee(new Attendee(att.getInt("id"), att.getString("name"), att.getInt("type")));
             }
 
             this.sort();
@@ -243,13 +279,18 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
 
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        TextView view = (TextView) convertView;
+        View view = convertView;
         if(convertView == null)
-            view = (TextView) inflater.inflate(R.layout.attendee_item, null);
+            view = inflater.inflate(R.layout.attendee_item, null);
+
+
+        TextView name = (TextView) view.findViewById(R.id.attendee_name);
+        TextView type = (TextView) view.findViewById(R.id.attendee_type);
 
         Attendee att = data.get(position);
 
-        view.setText(att.name);
+        name.setText(att.name);
+        type.setText(att.type.label);
 
         return view;
     }
