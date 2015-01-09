@@ -46,7 +46,7 @@ public class OrganisationsActivity extends ActionBarActivity
 
         organisationsView.setOnItemClickListener(new OnItemClickListener()
         {
-            public void onItemClick(AdapterView listview, View view, int pos, long id)
+            public void onItemClick(AdapterView<?> listview, View view, int pos, long id)
             {
                 try
                 {
