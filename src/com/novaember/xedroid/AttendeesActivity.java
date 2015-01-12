@@ -68,7 +68,7 @@ public class AttendeesActivity extends ActionBarActivity
                 try
                 {
                     Attendee att = (Attendee) listview.getAdapter().getItem(pos);
-                    Intent intent = new Intent(self, AttendeesActivity.class);
+                    Intent intent = new Intent(self, WeekScheduleActivity.class);
                     intent.putExtra("attendeeId", att.id);
                     intent.putExtra("attendeeName", att.name);
                     startActivity(intent);
