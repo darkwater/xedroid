@@ -1,13 +1,18 @@
 package com.novaember.xedroid;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -17,6 +22,7 @@ public class WeekScheduleView extends View
     private Paint backgroundPaint;
     private Paint headerTextPaint;
     private Paint sideTextPaint;
+    private Paint timeLinePaint;
 
     private Paint eventPaint;
     private Paint eventTextPaint;
@@ -47,6 +53,10 @@ public class WeekScheduleView extends View
         sideTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         sideTextPaint.setColor(0xff888888);
         sideTextPaint.setTextAlign(Align.RIGHT);
+
+        timeLinePaint = new Paint(0);
+        timeLinePaint.setColor(0x60000000);
+        timeLinePaint.setStrokeWidth(4);
 
         eventPaint = new Paint(0);
         eventPaint.setColor(0xffffffff);
@@ -130,6 +140,24 @@ public class WeekScheduleView extends View
             canvas.drawLine(left, top, right, top, linePaint);
             canvas.drawLine(left, bottom, right, bottom, linePaint);
         }
+
+        // Time line
+        DateFormat dayFormat = new SimpleDateFormat("E");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        Date now = new Date();
+        float hour = parseHour(timeFormat.format(now));
+        float hourY = headerHeight + getYFromHour(hour, columnHeight);
+        int day = "Mon Tue Wed Thu Fri Sat Sun".indexOf(dayFormat.format(now)) / 4 + 1; // "Wed" -> 3, etc.
+        float dayLeft = columnWidth * day;
+        float dayRight = dayLeft + columnWidth;
+        canvas.drawLine(dayLeft, hourY, dayRight, hourY, timeLinePaint);
+    }
+
+    private float parseHour(String in) // TODO: Make external toolset
+    {
+        String[] split = in.split(":");
+
+        return (float) Integer.parseInt(split[0]) + (float) Integer.parseInt(split[1]) / 60.f;
     }
 
     private float getPx(float x)

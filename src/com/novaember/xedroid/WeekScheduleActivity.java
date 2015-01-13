@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,8 +34,9 @@ import android.widget.TextView;
 
 public class WeekScheduleActivity extends ActionBarActivity
 {
-    // WeekScheduleAdapter weekSchedule;
     private WeekScheduleActivity self;
+    private WeekScheduleView weekScheduleView;
+
 
     private int attendeeId;
     private String attendeeName;
@@ -54,12 +57,16 @@ public class WeekScheduleActivity extends ActionBarActivity
         bar.setTitle(attendeeName);
         bar.setDisplayHomeAsUpEnabled(true);
 
+        weekScheduleView = (WeekScheduleView) findViewById(R.id.weekSchedule);
+
         DateFormat yearFormat = new SimpleDateFormat("yyyy");
         DateFormat weekFormat = new SimpleDateFormat("w");
-
         Date date = new Date();
-
         new FetchWeekScheduleTask().execute("http://xedule.novaember.com/weekSchedule." + attendeeId + ".json?year=" + yearFormat.format(date) + "&week=" + weekFormat.format(date));
+
+        Timer timer = new Timer();
+        InvalidateTimer task = new InvalidateTimer(this);
+        timer.schedule(task, 60 * 1000, 60 * 1000);
 
 //        WeekScheduleView weekScheduleView = (WeekScheduleView) findViewById(R.id.weekSchedule);
 //        weekScheduleView.setAdapter(weekSchedule);
@@ -106,6 +113,16 @@ public class WeekScheduleActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+    public void invalidateView()
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                weekScheduleView.invalidate();
+            }
+        });
+    }
+
     private class FetchWeekScheduleTask extends AsyncTask<String, Void, String>
     {
         @Override
@@ -125,8 +142,6 @@ public class WeekScheduleActivity extends ActionBarActivity
         @Override
         protected void onPostExecute(String result)
         {
-            WeekScheduleView weekScheduleView = (WeekScheduleView) findViewById(R.id.weekSchedule);
-
             try
             {
                 JSONArray arr = new JSONArray(result);
@@ -191,5 +206,21 @@ public class WeekScheduleActivity extends ActionBarActivity
 
             return Color.HSVToColor(new float[]{ hue, 0.95f, 0.95f });
         }
+    }
+}
+
+final class InvalidateTimer extends TimerTask
+{
+    WeekScheduleActivity activity;
+
+    public InvalidateTimer(WeekScheduleActivity activity)
+    {
+        this.activity = activity;
+    }
+
+    @Override
+    public void run()
+    {
+        activity.invalidateView();
     }
 }
