@@ -3,6 +3,7 @@ package com.novaember.xedroid;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -142,22 +144,16 @@ public class WeekScheduleView extends View
         }
 
         // Time line
-        DateFormat dayFormat = new SimpleDateFormat("E");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        Date now = new Date();
-        float hour = parseHour(timeFormat.format(now));
+        Calendar calendar = Calendar.getInstance();
+
+        float hour = calendar.get(Calendar.HOUR_OF_DAY) + (float) calendar.get(Calendar.MINUTE) / 60;
         float hourY = headerHeight + getYFromHour(hour, columnHeight);
-        int day = "Mon Tue Wed Thu Fri Sat Sun".indexOf(dayFormat.format(now)) / 4 + 1; // "Wed" -> 3, etc.
+
+        int day = (calendar.get(Calendar.DAY_OF_WEEK) - 2) % 7 + 1;
         float dayLeft = columnWidth * day;
         float dayRight = dayLeft + columnWidth;
+
         canvas.drawLine(dayLeft, hourY, dayRight, hourY, timeLinePaint);
-    }
-
-    private float parseHour(String in) // TODO: Make external toolset
-    {
-        String[] split = in.split(":");
-
-        return (float) Integer.parseInt(split[0]) + (float) Integer.parseInt(split[1]) / 60.f;
     }
 
     private float getPx(float x)
