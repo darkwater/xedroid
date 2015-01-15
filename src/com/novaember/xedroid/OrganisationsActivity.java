@@ -3,10 +3,6 @@ package com.novaember.xedroid;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Context;
@@ -27,8 +23,8 @@ import android.widget.TextView;
 
 public class OrganisationsActivity extends ActionBarActivity
 {
-    OrganisationAdapter organisations;
-    OrganisationsActivity self;
+    private OrganisationAdapter organisations;
+    private OrganisationsActivity self;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -39,10 +35,22 @@ public class OrganisationsActivity extends ActionBarActivity
         setContentView(R.layout.activity_organisations);
 
         organisations = new OrganisationAdapter(this);
-        new FetchOrganisationsTask().execute("http://xedule.novaember.com/organisations.json");
 
         ListView organisationsView = (ListView) findViewById(R.id.organisations);
         organisationsView.setAdapter(organisations);
+
+        new AsyncTask<Void, Void, ArrayList<Organisation>>()
+        {
+            protected ArrayList<Organisation> doInBackground(Void... _)
+            {
+                return Organisation.getAll();
+            }
+
+            protected void onPostExecute(ArrayList<Organisation> orgs)
+            {
+                organisations.addFromArrayList(orgs);
+            }
+        }.execute();
 
         organisationsView.setOnItemClickListener(new OnItemClickListener()
         {
@@ -52,8 +60,8 @@ public class OrganisationsActivity extends ActionBarActivity
                 {
                     Organisation org = (Organisation) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, LocationsActivity.class);
-                    intent.putExtra("organisationId", org.id);
-                    intent.putExtra("organisationName", org.name);
+                    intent.putExtra("organisationId", org.getId());
+                    intent.putExtra("organisationName", org.getName());
                     startActivity(intent);
                 }
                 catch(Exception e)
@@ -85,54 +93,6 @@ public class OrganisationsActivity extends ActionBarActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private class FetchOrganisationsTask extends AsyncTask<String, Void, String>
-    {
-        @Override
-        protected String doInBackground(String... urls)
-        {
-            // params comes from the execute() call: params[0] is the url.
-            try
-            {
-                return Fetcher.downloadUrl(urls[0]);
-            }
-            catch (Exception e)
-            {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            try
-            {
-                organisations.addOrganisationsFromJSON(result);
-            }
-            catch (JSONException e)
-            {
-                Log.e("Xedroid", "Error: " + e.getMessage());
-            }
-        }
-    }
-}
-
-class Organisation implements Comparable<Organisation>
-{
-    public int id;
-    public String name;
-
-    public Organisation(int id, String name)
-    {
-        this.id = id;
-        this.name = name;
-    }
-
-    @Override
-    public int compareTo(Organisation org)
-    {
-        return this.name.compareTo(org.name);
-    }
 }
 
 class OrganisationAdapter extends BaseAdapter
@@ -149,30 +109,19 @@ class OrganisationAdapter extends BaseAdapter
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addOrganisation(Organisation org)
+    public void add(Organisation org)
     {
         data.add(org);
     }
 
-    public void addOrganisationsFromJSON(String input) throws JSONException
+    public void addFromArrayList(ArrayList<Organisation> input)
     {
-        try
+        for (Organisation org : input)
         {
-            JSONArray arr = new JSONArray(input);
-
-            for (int i = 0; i < arr.length(); i++)
-            {
-                JSONObject org = arr.getJSONObject(i);
-                this.addOrganisation(new Organisation(org.getInt("id"), org.getString("name")));
-            }
-
-            this.sort();
-            this.notifyDataSetChanged();
+            this.add(org);
         }
-        catch (JSONException e)
-        {
-            Log.e("Xedroid", "Error! " + e.getMessage());
-        }
+
+        this.notifyDataSetChanged();
     }
 
     public int getCount()
@@ -203,7 +152,7 @@ class OrganisationAdapter extends BaseAdapter
 
         Organisation org = data.get(position);
 
-        view.setText(org.name);
+        view.setText(org.getName());
 
         return view;
     }

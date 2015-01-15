@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -15,6 +13,8 @@ public class Fetcher
 {
     public static String downloadUrl(String urlstr)
     {
+        Log.d("Xedule", "Downloading " + urlstr);
+
         InputStream is = null;
 
         try {
@@ -34,7 +34,7 @@ public class Fetcher
         }
         catch (Exception e)
         {
-            Log.d("Xedule", "Error: " + e.getMessage());
+            Log.e("Xedule", "Error downloading " + urlstr, e);
             return "";
         }
         finally

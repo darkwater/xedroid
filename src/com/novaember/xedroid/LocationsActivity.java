@@ -28,11 +28,9 @@ import android.widget.TextView;
 
 public class LocationsActivity extends ActionBarActivity
 {
-    LocationAdapter locations;
     LocationsActivity self;
-
-    int organisationId;
-    String organisationName;
+    LocationAdapter locations;
+    Organisation organisation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -41,36 +39,49 @@ public class LocationsActivity extends ActionBarActivity
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_locations);
-
+ 
         Intent intent = getIntent();
-        organisationId = intent.getIntExtra("organisationId", 0);
-        organisationName = intent.getStringExtra("organisationName");
+        int organisationId = intent.getIntExtra("organisationId", 0);
+        String organisationName = intent.getStringExtra("organisationName");
+        organisation = new Organisation(organisationId, organisationName);
 
         ActionBar bar = getSupportActionBar();
         bar.setTitle(organisationName);
         bar.setDisplayHomeAsUpEnabled(true);
 
         locations = new LocationAdapter(this);
-        new FetchLocationsTask().execute("http://xedule.novaember.com/locations." + organisationId + ".json");
 
         ListView locationsView = (ListView) findViewById(R.id.locations);
         locationsView.setAdapter(locations);
 
+        new AsyncTask<Void, Void, ArrayList<Location>>()
+        {
+            protected ArrayList<Location> doInBackground(Void... _)
+            {
+                return organisation.getLocations();
+            }
+
+            protected void onPostExecute(ArrayList<Location> locs)
+            {
+                locations.addFromArrayList(locs);
+            }
+        }.execute();
+
         locationsView.setOnItemClickListener(new OnItemClickListener()
         {
-            public void onItemClick(AdapterView listview, View view, int pos, long id)
+            public void onItemClick(AdapterView<?> listview, View view, int pos, long id)
             {
                 try
                 {
                     Location loc = (Location) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, AttendeesActivity.class);
-                    intent.putExtra("locationId", loc.id);
-                    intent.putExtra("locationName", loc.name);
+                    intent.putExtra("locationId", loc.getId());
+                    intent.putExtra("locationName", loc.getName());
                     startActivity(intent);
                 }
                 catch(Exception e)
                 {
-                    Log.e("Xedroid", "Error: " + e.getMessage());
+                    Log.e("Xedroid", "Error while clicking the thing", e);
                 }
             }
         });
@@ -97,54 +108,6 @@ public class LocationsActivity extends ActionBarActivity
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-    private class FetchLocationsTask extends AsyncTask<String, Void, String>
-    {
-        @Override
-        protected String doInBackground(String... urls)
-        {
-            // params comes from the execute() call: params[0] is the url.
-            try
-            {
-                return Fetcher.downloadUrl(urls[0]);
-            }
-            catch (Exception e)
-            {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            try
-            {
-                locations.addLocationsFromJSON(result);
-            }
-            catch (JSONException e)
-            {
-                Log.e("Xedroid", "Error: " + e.getMessage());
-            }
-        }
-    }
-}
-
-class Location implements Comparable<Location>
-{
-    public int id;
-    public String name;
-
-    public Location(int id, String name)
-    {
-        this.id = id;
-        this.name = name;
-    }
-
-    @Override
-    public int compareTo(Location loc)
-    {
-        return this.name.compareTo(loc.name);
-    }
 }
 
 class LocationAdapter extends BaseAdapter
@@ -161,30 +124,19 @@ class LocationAdapter extends BaseAdapter
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addLocation(Location loc)
+    public void add(Location loc)
     {
         data.add(loc);
     }
 
-    public void addLocationsFromJSON(String input) throws JSONException
+    public void addFromArrayList(ArrayList<Location> input)
     {
-        try
+        for (Location loc : input)
         {
-            JSONArray arr = new JSONArray(input);
-
-            for (int i = 0; i < arr.length(); i++)
-            {
-                JSONObject loc = arr.getJSONObject(i);
-                this.addLocation(new Location(loc.getInt("id"), loc.getString("name")));
-            }
-
-            this.sort();
-            this.notifyDataSetChanged();
+            this.add(loc);
         }
-        catch (JSONException e)
-        {
-            Log.e("Xedroid", "Error! " + e.getMessage());
-        }
+
+        this.notifyDataSetChanged();
     }
 
     public int getCount()
@@ -215,7 +167,7 @@ class LocationAdapter extends BaseAdapter
 
         Location loc = data.get(position);
 
-        view.setText(loc.name);
+        view.setText(loc.getName());
 
         return view;
     }

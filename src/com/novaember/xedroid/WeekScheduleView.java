@@ -1,20 +1,12 @@
 package com.novaember.xedroid;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -137,7 +129,7 @@ public class WeekScheduleView extends View
             eventColorPaint.setColor(ev.color);
 
             canvas.drawRect(left, top, right, bottom, eventPaint);
-            canvas.drawText(ev.description, left + columnWidth * 0.5f, top + eventTextPadding + eventTextHeight, eventTextPaint);
+            canvas.drawText(ev.description.substring(0, Math.min(ev.description.length(), 3)), left + columnWidth * 0.5f, top + eventTextPadding + eventTextHeight, eventTextPaint);
             canvas.drawLine(left + 2, top, left + 2, bottom, eventColorPaint);
             canvas.drawLine(left, top, right, top, linePaint);
             canvas.drawLine(left, bottom, right, bottom, linePaint);

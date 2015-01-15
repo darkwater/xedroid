@@ -11,13 +11,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+            android:allowBackup="true"
+            android:name="com.novaember.xedroid.Xedroid"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme" >
         <activity
-            android:name=".OrganisationsActivity"
-            android:label="@string/app_name" >
+                android:name=".OrganisationsActivity"
+                android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,21 +27,30 @@
         </activity>
 
         <activity
-            android:name=".LocationsActivity"
-            android:label="replace meee"
-            android:parentActivityName=".OrganisationsActivity" >
+                android:name=".LocationsActivity"
+                android:label="replace meee"
+                android:parentActivityName=".OrganisationsActivity" >
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.novaember.xedroid.OrganisationsActivity" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.OrganisationsActivity" />
         </activity>
 
         <activity
-            android:name=".AttendeesActivity"
-            android:label="replace meee"
-            android:parentActivityName=".LocationsActivity" >
+                android:name=".AttendeesActivity"
+                android:label="replace meee"
+                android:parentActivityName=".LocationsActivity" >
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.novaember.xedroid.LocationsActivity" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.LocationsActivity" />
+        </activity>
+
+        <activity
+                android:name=".WeekScheduleActivity"
+                android:label="replace meee"
+                android:parentActivityName=".WeekScheduleActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.AttendeesActivity" />
         </activity>
     </application>
 

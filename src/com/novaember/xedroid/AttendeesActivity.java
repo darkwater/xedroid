@@ -36,8 +36,7 @@ public class AttendeesActivity extends ActionBarActivity
     private AttendeeAdapter attendees;
     private AttendeesActivity self;
 
-    private int locationId;
-    private String locationName;
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,29 +47,42 @@ public class AttendeesActivity extends ActionBarActivity
         setContentView(R.layout.activity_attendees);
 
         Intent intent = getIntent();
-        locationId = intent.getIntExtra("locationId", 0);
-        locationName = intent.getStringExtra("locationName");
+        int locationId = intent.getIntExtra("locationId", 0);
+        String locationName = intent.getStringExtra("locationName");
+        location = new Location(locationId, locationName);
 
         ActionBar bar = getSupportActionBar();
         bar.setTitle(locationName);
         bar.setDisplayHomeAsUpEnabled(true);
 
         attendees = new AttendeeAdapter(this);
-        new FetchAttendeesTask().execute("http://xedule.novaember.com/attendees." + locationId + ".json");
 
         ListView attendeesView = (ListView) findViewById(R.id.attendees);
         attendeesView.setAdapter(attendees);
 
+        new AsyncTask<Void, Void, ArrayList<Attendee>>()
+        {
+            protected ArrayList<Attendee> doInBackground(Void... _)
+            {
+                return location.getAttendees();
+            }
+
+            protected void onPostExecute(ArrayList<Attendee> atts)
+            {
+                attendees.addFromArrayList(atts);
+            }
+        }.execute();
+
         attendeesView.setOnItemClickListener(new OnItemClickListener()
         {
-            public void onItemClick(AdapterView listview, View view, int pos, long id)
+            public void onItemClick(AdapterView<?> listview, View view, int pos, long id)
             {
                 try
                 {
                     Attendee att = (Attendee) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, WeekScheduleActivity.class);
-                    intent.putExtra("attendeeId", att.id);
-                    intent.putExtra("attendeeName", att.name);
+                    intent.putExtra("attendeeId", att.getId());
+                    intent.putExtra("attendeeName", att.getName());
                     startActivity(intent);
                 }
                 catch(Exception e)
@@ -128,91 +140,6 @@ public class AttendeesActivity extends ActionBarActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private class FetchAttendeesTask extends AsyncTask<String, Void, String>
-    {
-        @Override
-        protected String doInBackground(String... urls)
-        {
-            // params comes from the execute() call: params[0] is the url.
-            try
-            {
-                return Fetcher.downloadUrl(urls[0]);
-            }
-            catch (Exception e)
-            {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            try
-            {
-                attendees.addAttendeesFromJSON(result);
-            }
-            catch (JSONException e)
-            {
-                Log.e("Xedroid", "Error: " + e.getMessage());
-            }
-        }
-    }
-}
-
-class Attendee implements Comparable<Attendee>
-{
-    public int id;
-    public String name;
-    public Type type;
-
-    public enum Type
-    {
-        CLASS    (1, R.string.attendee_type_class),
-        STAFF    (2, R.string.attendee_type_staff),
-        FACILITY (3, R.string.attendee_type_facility);
-
-        public final int id;
-        public final int label;
-
-        private Type(int id, int label)
-        {
-            this.id = id;
-            this.label = label;
-        }
-
-        public static Type getById(int id) throws Exception
-        {
-            switch (id)
-            {
-                case 1:  return Type.CLASS;
-                case 2:  return Type.STAFF;
-                case 3:  return Type.FACILITY;
-                default: throw new Exception("Invalid attendee type: " + String.valueOf(id));
-            }
-        }
-    }
-
-    public Attendee(int id, String name, int type)
-    {
-        this.id = id;
-        this.name = name;
-
-        try
-        {
-            this.type = Type.getById(type);
-        }
-        catch (Exception e)
-        {
-            Log.e("Xedule", "Error: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public int compareTo(Attendee att)
-    {
-        return this.name.compareTo(att.name);
-    }
 }
 
 class AttendeeAdapter extends BaseAdapter implements Filterable
@@ -231,29 +158,19 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addAttendee(Attendee att)
+    public void add(Attendee att)
     {
         data.add(att);
     }
 
-    public void addAttendeesFromJSON(String input) throws JSONException
+    public void addFromArrayList(ArrayList<Attendee> input)
     {
-        try
+        for (Attendee att : input)
         {
-            JSONArray arr = new JSONArray(input);
-
-            for (int i = 0; i < arr.length(); i++)
-            {
-                JSONObject att = arr.getJSONObject(i);
-                this.addAttendee(new Attendee(att.getInt("id"), att.getString("name"), att.getInt("type")));
-            }
-
-            this.sort();
+            this.add(att);
         }
-        catch (JSONException e)
-        {
-            Log.e("Xedroid", "Error! " + e.getMessage());
-        }
+
+        this.notifyDataSetChanged();
     }
 
     public int getCount()
@@ -289,8 +206,8 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
 
         Attendee att = data.get(position);
 
-        name.setText(att.name);
-        type.setText(att.type.label);
+        name.setText(att.getName());
+        type.setText(att.getType().label);
 
         return view;
     }
@@ -331,7 +248,7 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
                 for (int i = 0; i < count; i++)
                 {
                     Attendee value = values.get(i);
-                    String valueName = value.name.toLowerCase();
+                    String valueName = value.getName().toLowerCase();
 
                     if (valueName.indexOf(queryString) >= 0)
                         newValues.add(value);
