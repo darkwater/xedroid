@@ -2,33 +2,41 @@ package com.novaember.xedroid;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.util.Log;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Location implements Comparable<Location>
 {
     private int id;
     private String name;
+    private int organisation;
 
     public Location(int id)
     {
         this.id = id;
-        this.name = "???";
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
+                new String[]{ "id", "name", "organisation" }, "id = " + this.id, null, null, null, "id", null);
+
+        cursor.moveToFirst();
+        this.name = cursor.getString(1);
+        this.organisation = cursor.getInt(2);
     }
 
-    public Location(int id, String name)
+    public Location(int id, String name, int organisation)
     {
         this.id = id;
         this.name = name;
+        this.organisation = organisation;
     }
 
-    public Location(JSONObject json) throws JSONException
+    public Location(Cursor cursor)
     {
-        this.id = json.getInt("id");
-        this.name = json.getString("name");
+        this.id = cursor.getInt(0);
+        this.name = cursor.getString(1);
+        this.organisation = cursor.getInt(2);
     }
 
     public int getId()
@@ -41,32 +49,47 @@ public class Location implements Comparable<Location>
         return name;
     }
 
+    public Organisation getOrganisation()
+    {
+        return new Organisation(this.organisation);
+    }
+
     @Override
     public int compareTo(Location loc)
     {
         return this.name.compareTo(loc.name);
     }
 
+    public void save()
+    {
+        ContentValues values = new ContentValues();
+        values.put("id", this.id);
+        values.put("name", this.name);
+        values.put("organisation", this.organisation);
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.insertWithOnConflict(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
+                null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+    }
+
     public ArrayList<Attendee> getAttendees()
     {
-        ArrayList<Attendee> attendeesArrayList = new ArrayList<Attendee>();
+        ArrayList<Attendee> output = new ArrayList<Attendee>();
 
-        try
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(DatabaseOpenHelper.ATTENDEES_TABLE_NAME,
+                new String[]{ "id", "name", "location", "type" }, "location = " + this.id, null, null, null, "name", null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
         {
-            JSONArray attendeesJSONArray = Xedule.getArray("attendees." + this.id + ".json");
-
-            for (int i = 0; i < attendeesJSONArray.length(); i++)
-            {
-                JSONObject obj = attendeesJSONArray.getJSONObject(i);
-
-                attendeesArrayList.add(new Attendee(obj));
-            }
-        }
-        catch(JSONException e)
-        {
-            Log.e("Xedule", "Couldn't get all attendees", e);
+            output.add(new Attendee(cursor));
+            cursor.moveToNext();
         }
 
-        return attendeesArrayList;
+        db.close();
+
+        return output;
     }
 }

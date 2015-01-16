@@ -42,11 +42,10 @@ public class LocationsActivity extends ActionBarActivity
  
         Intent intent = getIntent();
         int organisationId = intent.getIntExtra("organisationId", 0);
-        String organisationName = intent.getStringExtra("organisationName");
-        organisation = new Organisation(organisationId, organisationName);
+        organisation = new Organisation(organisationId);
 
         ActionBar bar = getSupportActionBar();
-        bar.setTitle(organisationName);
+        bar.setTitle(organisation.getName());
         bar.setDisplayHomeAsUpEnabled(true);
 
         locations = new LocationAdapter(this);
@@ -54,18 +53,27 @@ public class LocationsActivity extends ActionBarActivity
         ListView locationsView = (ListView) findViewById(R.id.locations);
         locationsView.setAdapter(locations);
 
-        new AsyncTask<Void, Void, ArrayList<Location>>()
+        ArrayList<Location> locs = organisation.getLocations();
+        if (locs.isEmpty())
         {
-            protected ArrayList<Location> doInBackground(Void... _)
+            new AsyncTask<Void, Void, ArrayList<Location>>()
             {
-                return organisation.getLocations();
-            }
+                protected ArrayList<Location> doInBackground(Void... _)
+                {
+                    Xedule.updateLocations(organisation.getId());
+                    return organisation.getLocations();
+                }
 
-            protected void onPostExecute(ArrayList<Location> locs)
-            {
-                locations.addFromArrayList(locs);
-            }
-        }.execute();
+                protected void onPostExecute(ArrayList<Location> locs)
+                {
+                    locations.addFromArrayList(locs);
+                }
+            }.execute();
+        }
+        else
+        {
+            locations.addFromArrayList(locs);
+        }
 
         locationsView.setOnItemClickListener(new OnItemClickListener()
         {
@@ -76,7 +84,6 @@ public class LocationsActivity extends ActionBarActivity
                     Location loc = (Location) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, AttendeesActivity.class);
                     intent.putExtra("locationId", loc.getId());
-                    intent.putExtra("locationName", loc.getName());
                     startActivity(intent);
                 }
                 catch(Exception e)

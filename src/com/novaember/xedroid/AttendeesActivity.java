@@ -47,12 +47,10 @@ public class AttendeesActivity extends ActionBarActivity
         setContentView(R.layout.activity_attendees);
 
         Intent intent = getIntent();
-        int locationId = intent.getIntExtra("locationId", 0);
-        String locationName = intent.getStringExtra("locationName");
-        location = new Location(locationId, locationName);
+        location = new Location(intent.getIntExtra("locationId", 0));
 
         ActionBar bar = getSupportActionBar();
-        bar.setTitle(locationName);
+        bar.setTitle(location.getName());
         bar.setDisplayHomeAsUpEnabled(true);
 
         attendees = new AttendeeAdapter(this);
@@ -60,18 +58,27 @@ public class AttendeesActivity extends ActionBarActivity
         ListView attendeesView = (ListView) findViewById(R.id.attendees);
         attendeesView.setAdapter(attendees);
 
-        new AsyncTask<Void, Void, ArrayList<Attendee>>()
+        ArrayList<Attendee> atts = location.getAttendees();
+        if (atts.isEmpty())
         {
-            protected ArrayList<Attendee> doInBackground(Void... _)
+            new AsyncTask<Void, Void, ArrayList<Attendee>>()
             {
-                return location.getAttendees();
-            }
+                protected ArrayList<Attendee> doInBackground(Void... _)
+                {
+                    Xedule.updateAttendees(location.getId());
+                    return location.getAttendees();
+                }
 
-            protected void onPostExecute(ArrayList<Attendee> atts)
-            {
-                attendees.addFromArrayList(atts);
-            }
-        }.execute();
+                protected void onPostExecute(ArrayList<Attendee> atts)
+                {
+                    attendees.addFromArrayList(atts);
+                }
+            }.execute();
+        }
+        else
+        {
+            attendees.addFromArrayList(atts);
+        }
 
         attendeesView.setOnItemClickListener(new OnItemClickListener()
         {
@@ -161,6 +168,8 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
     public void add(Attendee att)
     {
         data.add(att);
+
+        this.notifyDataSetChanged();
     }
 
     public void addFromArrayList(ArrayList<Attendee> input)
@@ -169,8 +178,6 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
         {
             this.add(att);
         }
-
-        this.notifyDataSetChanged();
     }
 
     public int getCount()

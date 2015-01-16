@@ -39,18 +39,27 @@ public class OrganisationsActivity extends ActionBarActivity
         ListView organisationsView = (ListView) findViewById(R.id.organisations);
         organisationsView.setAdapter(organisations);
 
-        new AsyncTask<Void, Void, ArrayList<Organisation>>()
+        ArrayList<Organisation> orgs = Organisation.getAll();
+        if (orgs.isEmpty())
         {
-            protected ArrayList<Organisation> doInBackground(Void... _)
+            new AsyncTask<Void, Void, ArrayList<Organisation>>()
             {
-                return Organisation.getAll();
-            }
+                protected ArrayList<Organisation> doInBackground(Void... _)
+                {
+                    Xedule.updateOrganisations();
+                    return Organisation.getAll();
+                }
 
-            protected void onPostExecute(ArrayList<Organisation> orgs)
-            {
-                organisations.addFromArrayList(orgs);
-            }
-        }.execute();
+                protected void onPostExecute(ArrayList<Organisation> orgs)
+                {
+                    organisations.addFromArrayList(orgs);
+                }
+            }.execute();
+        }
+        else
+        {
+            organisations.addFromArrayList(orgs);
+        }
 
         organisationsView.setOnItemClickListener(new OnItemClickListener()
         {
@@ -61,7 +70,6 @@ public class OrganisationsActivity extends ActionBarActivity
                     Organisation org = (Organisation) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, LocationsActivity.class);
                     intent.putExtra("organisationId", org.getId());
-                    intent.putExtra("organisationName", org.getName());
                     startActivity(intent);
                 }
                 catch(Exception e)
@@ -112,6 +120,8 @@ class OrganisationAdapter extends BaseAdapter
     public void add(Organisation org)
     {
         data.add(org);
+
+        this.notifyDataSetChanged();
     }
 
     public void addFromArrayList(ArrayList<Organisation> input)
@@ -120,8 +130,6 @@ class OrganisationAdapter extends BaseAdapter
         {
             this.add(org);
         }
-
-        this.notifyDataSetChanged();
     }
 
     public int getCount()

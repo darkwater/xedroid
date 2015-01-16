@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,5 +64,62 @@ public class Xedule
         }
 
         return output;
+    }
+
+    public static void updateOrganisations()
+    {
+        try
+        {
+            JSONArray organisationsJSONArray = Xedule.getArray("organisations.json");
+
+            for (int i = 0; i < organisationsJSONArray.length(); i++)
+            {
+                JSONObject obj = organisationsJSONArray.getJSONObject(i);
+
+                new Organisation(obj.getInt("id"), obj.getString("name")).save();
+            }
+        }
+        catch(JSONException e)
+        {
+            Log.e("Xedule", "Couldn't update organisations", e);
+        }
+    }
+
+    public static void updateLocations(int organisation)
+    {
+        try
+        {
+            JSONArray locationsJSONArray = Xedule.getArray("locations." + organisation + ".json");
+
+            for (int i = 0; i < locationsJSONArray.length(); i++)
+            {
+                JSONObject obj = locationsJSONArray.getJSONObject(i);
+
+                new Location(obj.getInt("id"), obj.getString("name"), organisation).save();
+            }
+        }
+        catch(JSONException e)
+        {
+            Log.e("Xedule", "Couldn't update locations for organisation #" + organisation, e);
+        }
+    }
+
+    public static void updateAttendees(int location)
+    {
+        try
+        {
+            JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location + ".json");
+
+            for (int i = 0; i < attendeesJSONArray.length(); i++)
+            {
+                JSONObject obj = attendeesJSONArray.getJSONObject(i);
+
+                new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getInt("type")).save();
+            }
+        }
+        catch(JSONException e)
+        {
+            Log.e("Xedule", "Couldn't update attendees for location #" + location, e);
+        }
     }
 }

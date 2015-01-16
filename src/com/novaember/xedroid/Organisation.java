@@ -2,11 +2,9 @@ package com.novaember.xedroid;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.util.Log;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Organisation implements Comparable<Organisation>
 {
@@ -16,6 +14,13 @@ public class Organisation implements Comparable<Organisation>
     public Organisation(int id)
     {
         this.id = id;
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
+                new String[]{ "id", "name" }, "id = " + this.id, null, null, null, "id", null);
+
+        cursor.moveToFirst();
+        this.name = cursor.getString(1);
     }
 
     public Organisation(int id, String name)
@@ -24,10 +29,10 @@ public class Organisation implements Comparable<Organisation>
         this.name = name;
     }
 
-    public Organisation(JSONObject json) throws JSONException
+    public Organisation(Cursor cursor)
     {
-        this.id = json.getInt("id");
-        this.name = json.getString("name");
+        this.id = cursor.getInt(0);
+        this.name = cursor.getString(1);
     }
 
     public int getId()
@@ -39,77 +44,64 @@ public class Organisation implements Comparable<Organisation>
     {
         if (name != null) return name;
 
-        try
-        {
-            JSONArray organisations = Xedule.getArray("organisations.json");
-
-            for (int i = 0; i < organisations.length(); i++)
-            {
-                if (organisations.getJSONObject(i).getInt("id") == this.id)
-                {
-                    this.name = organisations.getJSONObject(i).getString("name");
-                    break;
-                }
-            }
-        }
-        catch (JSONException e)
-        {
-            Log.e("Xedroid", "Could not get name of Organisation #" + this.id, e);
-            this.name = "???";
-        }
-
-        return name;
+        return "???";
     }
 
     @Override
     public int compareTo(Organisation org)
     {
-        return this.name.compareTo(org.name);
+        return name.compareTo(org.name);
+    }
+
+    public void save()
+    {
+        ContentValues values = new ContentValues();
+        values.put("id", this.id);
+        values.put("name", this.name);
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.insertWithOnConflict(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
+                null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
     }
 
     public static ArrayList<Organisation> getAll()
     {
-        ArrayList<Organisation> organisationsArrayList = new ArrayList<Organisation>();
+        ArrayList<Organisation> output = new ArrayList<Organisation>();
 
-        try
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
+                new String[]{ "id", "name" }, null, null, null, null, "name", null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
         {
-            JSONArray organisationsJSONArray = Xedule.getArray("organisations.json");
-
-            for (int i = 0; i < organisationsJSONArray.length(); i++)
-            {
-                JSONObject obj = organisationsJSONArray.getJSONObject(i);
-
-                organisationsArrayList.add(new Organisation(obj.getInt("id"), obj.getString("name")));
-            }
-        }
-        catch(JSONException e)
-        {
-            Log.e("Xedule", "Couldn't get all organisations", e);
+            output.add(new Organisation(cursor));
+            cursor.moveToNext();
         }
 
-        return organisationsArrayList;
+        db.close();
+
+        return output;
     }
 
     public ArrayList<Location> getLocations()
     {
-        ArrayList<Location> locationsArrayList = new ArrayList<Location>();
+        ArrayList<Location> output = new ArrayList<Location>();
 
-        try
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
+                new String[]{ "id", "name", "organisation" }, "organisation = " + this.id, null, null, null, "name", null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
         {
-            JSONArray locationsJSONArray = Xedule.getArray("locations." + this.id + ".json");
-
-            for (int i = 0; i < locationsJSONArray.length(); i++)
-            {
-                JSONObject obj = locationsJSONArray.getJSONObject(i);
-
-                locationsArrayList.add(new Location(obj));
-            }
-        }
-        catch(JSONException e)
-        {
-            Log.e("Xedule", "Couldn't get locations for (" + this.id + ") " + this.name, e);
+            output.add(new Location(cursor));
+            cursor.moveToNext();
         }
 
-        return locationsArrayList;
+        db.close();
+
+        return output;
     }
 }
