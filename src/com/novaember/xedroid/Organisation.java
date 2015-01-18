@@ -16,8 +16,7 @@ public class Organisation implements Comparable<Organisation>
         this.id = id;
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
-                new String[]{ "id", "name" }, "id = " + this.id, null, null, null, "id", null);
+        Cursor cursor = db.query("organisations", new String[]{ "id", "name" }, "id = " + this.id, null, null, null, "id", null);
 
         cursor.moveToFirst();
         this.name = cursor.getString(1);
@@ -53,15 +52,19 @@ public class Organisation implements Comparable<Organisation>
         return name.compareTo(org.name);
     }
 
-    public void save()
+    public void save(SQLiteDatabase db)
     {
         ContentValues values = new ContentValues();
         values.put("id", this.id);
         values.put("name", this.name);
 
+        db.insertWithOnConflict("organisations", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void save()
+    {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
-        db.insertWithOnConflict(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
-                null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        save(db);
         db.close();
     }
 
@@ -70,8 +73,7 @@ public class Organisation implements Comparable<Organisation>
         ArrayList<Organisation> output = new ArrayList<Organisation>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query(DatabaseOpenHelper.ORGANISATIONS_TABLE_NAME,
-                new String[]{ "id", "name" }, null, null, null, null, "name", null);
+        Cursor cursor = db.query("organisations", new String[]{ "id", "name" }, null, null, null, null, "name", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())
@@ -90,8 +92,7 @@ public class Organisation implements Comparable<Organisation>
         ArrayList<Location> output = new ArrayList<Location>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
-                new String[]{ "id", "name", "organisation" }, "organisation = " + this.id, null, null, null, "name", null);
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation" }, "organisation = " + this.id, null, null, null, "name", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())

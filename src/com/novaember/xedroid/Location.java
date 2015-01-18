@@ -17,8 +17,7 @@ public class Location implements Comparable<Location>
         this.id = id;
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
-                new String[]{ "id", "name", "organisation" }, "id = " + this.id, null, null, null, "id", null);
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation" }, "id = " + this.id, null, null, null, "id", null);
 
         cursor.moveToFirst();
         this.name = cursor.getString(1);
@@ -60,16 +59,20 @@ public class Location implements Comparable<Location>
         return this.name.compareTo(loc.name);
     }
 
-    public void save()
+    public void save(SQLiteDatabase db)
     {
         ContentValues values = new ContentValues();
         values.put("id", this.id);
         values.put("name", this.name);
         values.put("organisation", this.organisation);
 
+        db.insertWithOnConflict("locations", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void save()
+    {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
-        db.insertWithOnConflict(DatabaseOpenHelper.LOCATIONS_TABLE_NAME,
-                null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        save(db);
         db.close();
     }
 
@@ -78,8 +81,7 @@ public class Location implements Comparable<Location>
         ArrayList<Attendee> output = new ArrayList<Attendee>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query(DatabaseOpenHelper.ATTENDEES_TABLE_NAME,
-                new String[]{ "id", "name", "location", "type" }, "location = " + this.id, null, null, null, "name", null);
+        Cursor cursor = db.query("attendees", new String[]{ "id", "name", "location", "type" }, "location = " + this.id, null, null, null, "name", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())

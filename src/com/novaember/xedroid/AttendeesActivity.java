@@ -3,10 +3,6 @@ package com.novaember.xedroid;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -86,10 +82,9 @@ public class AttendeesActivity extends ActionBarActivity
             {
                 try
                 {
-                    Attendee att = (Attendee) listview.getAdapter().getItem(pos);
+                    Attendee attendee = (Attendee) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, WeekScheduleActivity.class);
-                    intent.putExtra("attendeeId", att.getId());
-                    intent.putExtra("attendeeName", att.getName());
+                    intent.putExtra("attendeeId", attendee.getId());
                     startActivity(intent);
                 }
                 catch(Exception e)

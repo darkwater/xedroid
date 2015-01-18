@@ -65,9 +65,17 @@ public class WeekScheduleView extends View
         events = new ArrayList<Event>();
     }
 
-    public void addEvent(Event ev)
+    public void addEvent(Event event)
     {
-        events.add(ev);
+        events.add(event);
+    }
+    
+    public void addFromArrayList(ArrayList<Event> input)
+    {
+        for (Event event : input)
+        {
+            addEvent(event);
+        }
     }
 
     protected void onDraw(Canvas canvas)
@@ -119,17 +127,17 @@ public class WeekScheduleView extends View
         }
 
         // Events
-        for (Event ev : events)
+        for (Event event : events)
         {
-            float left = columnWidth * ev.day;
-            float top = headerHeight + getYFromHour(ev.startHour, columnHeight);
-            float right = columnWidth * (ev.day + 1);
-            float bottom = headerHeight + getYFromHour(ev.endHour, columnHeight);
+            float left = columnWidth * event.getDay();
+            float top = headerHeight + getYFromHour(event.getStart().getFloat(), columnHeight);
+            float right = left + columnWidth;
+            float bottom = headerHeight + getYFromHour(event.getEnd().getFloat(), columnHeight);
 
-            eventColorPaint.setColor(ev.color);
+            eventColorPaint.setColor(event.getColor());
 
             canvas.drawRect(left, top, right, bottom, eventPaint);
-            canvas.drawText(ev.description.substring(0, Math.min(ev.description.length(), 3)), left + columnWidth * 0.5f, top + eventTextPadding + eventTextHeight, eventTextPaint);
+            canvas.drawText(event.getAbbreviation(), left + columnWidth * 0.5f, top + eventTextPadding + eventTextHeight, eventTextPaint);
             canvas.drawLine(left + 2, top, left + 2, bottom, eventColorPaint);
             canvas.drawLine(left, top, right, top, linePaint);
             canvas.drawLine(left, bottom, right, bottom, linePaint);
@@ -156,14 +164,5 @@ public class WeekScheduleView extends View
     private float getYFromHour(float hour, float height)
     {
         return (hour - startHour) / (endHour - startHour) * height * 0.92f;
-    }
-
-    public static class Event
-    {
-        public int day;
-        public float startHour;
-        public float endHour;
-        public String description;
-        public int color;
     }
 }

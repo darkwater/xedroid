@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class Xedule
@@ -68,6 +69,9 @@ public class Xedule
 
     public static void updateOrganisations()
     {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.beginTransaction();
+
         try
         {
             JSONArray organisationsJSONArray = Xedule.getArray("organisations.json");
@@ -76,17 +80,26 @@ public class Xedule
             {
                 JSONObject obj = organisationsJSONArray.getJSONObject(i);
 
-                new Organisation(obj.getInt("id"), obj.getString("name")).save();
+                new Organisation(obj.getInt("id"), obj.getString("name")).save(db);
             }
+
+            db.setTransactionSuccessful();
         }
         catch(JSONException e)
         {
             Log.e("Xedule", "Couldn't update organisations", e);
         }
+        finally
+        {
+            db.endTransaction();
+        }
     }
 
     public static void updateLocations(int organisation)
     {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.beginTransaction();
+
         try
         {
             JSONArray locationsJSONArray = Xedule.getArray("locations." + organisation + ".json");
@@ -95,17 +108,26 @@ public class Xedule
             {
                 JSONObject obj = locationsJSONArray.getJSONObject(i);
 
-                new Location(obj.getInt("id"), obj.getString("name"), organisation).save();
+                new Location(obj.getInt("id"), obj.getString("name"), organisation).save(db);
             }
+
+            db.setTransactionSuccessful();
         }
         catch(JSONException e)
         {
             Log.e("Xedule", "Couldn't update locations for organisation #" + organisation, e);
         }
+        finally
+        {
+            db.endTransaction();
+        }
     }
 
     public static void updateAttendees(int location)
     {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.beginTransaction();
+
         try
         {
             JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location + ".json");
@@ -114,12 +136,67 @@ public class Xedule
             {
                 JSONObject obj = attendeesJSONArray.getJSONObject(i);
 
-                new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getInt("type")).save();
+                new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getInt("type")).save(db);
             }
+
+            db.setTransactionSuccessful();
         }
         catch(JSONException e)
         {
             Log.e("Xedule", "Couldn't update attendees for location #" + location, e);
+        }
+        finally
+        {
+            db.endTransaction();
+        }
+    }
+
+    public static void updateEvents(int attendee, int year, int week)
+    {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        db.beginTransaction();
+
+        try
+        {
+            JSONArray daysJSONArray = Xedule.getArray("weekschedule." + attendee + ".json?year=" + year + "&week=" + week);
+
+            Event event;
+
+            for (int i = 0; i < daysJSONArray.length(); i++)
+            {
+                JSONObject dayJSONObject = daysJSONArray.getJSONObject(i);
+                JSONArray eventsJSONArray = dayJSONObject.getJSONArray("events");
+
+                int day = "Mon Tue Wed Thu Fri Sat Sun".indexOf(dayJSONObject.getString("date").substring(0, 3)) / 4 + 1;
+
+                for (int j = 0; j < eventsJSONArray.length(); j++)
+                {
+                    JSONObject eventJSONObject = eventsJSONArray.getJSONObject(j);
+
+                    event = new Event(year, week, day,
+                            new Event.Time(eventJSONObject.getString("start")), new Event.Time(eventJSONObject.getString("end")),
+                            eventJSONObject.getString("description"));
+
+                    JSONArray attendees = eventJSONObject.getJSONArray("attendees");
+
+                    for (int k = 0; k < attendees.length(); k++)
+                    {
+                        event.addAttendee(new Attendee(attendees.getInt(k)));
+                    }
+
+                    event.save(db);
+                }
+            }
+
+            db.setTransactionSuccessful();
+        }
+        catch(JSONException e)
+        {
+            Log.e("Xedule", "Couldn't update events for attendee #" + attendee, e);
+        }
+        finally
+        {
+            db.endTransaction();
         }
     }
 }

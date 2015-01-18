@@ -29,16 +29,33 @@ public class Attendee implements Comparable<Attendee>
             this.label = label;
         }
 
-        public static Type getById(int id) throws Exception
+        public static Type getById(int id)
         {
             switch (id)
             {
                 case 1:  return Type.CLASS;
                 case 2:  return Type.STAFF;
                 case 3:  return Type.FACILITY;
-                default: throw new Exception("Invalid attendee type: " + String.valueOf(id));
+                default: return Type.CLASS;
             }
         }
+    }
+
+    public Attendee(int id)
+    {
+        this.id = id;
+    }
+
+    public Attendee(String name, SQLiteDatabase db)
+    {
+        this.name = name;
+
+        Cursor cursor = db.query("attendees", new String[]{ "id", "name", "location", "type" }, "name = ?", new String[]{ this.name }, null, null, "id", null);
+
+        cursor.moveToFirst();
+        this.id = cursor.getInt(0);
+        this.location = cursor.getInt(2);
+        this.type = Type.getById(cursor.getInt(3));
     }
 
     public Attendee(int id, String name, int location, int type)
@@ -73,6 +90,17 @@ public class Attendee implements Comparable<Attendee>
         }
     }
 
+    public void populate()
+    {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("attendees", new String[]{ "id", "name", "location", "type" }, "id = " + this.id, null, null, null, "id", null);
+
+        cursor.moveToFirst();
+        this.name = cursor.getString(1);
+        this.location = cursor.getInt(2);
+        this.type = Type.getById(cursor.getInt(3));
+    }
+
     public int getId()
     {
         return id;
@@ -80,16 +108,22 @@ public class Attendee implements Comparable<Attendee>
 
     public String getName()
     {
+        if (name == null) populate();
+
         return name;
     }
 
     public Location getLocation()
     {
+        if (location == 0) populate();
+
         return new Location(location);
     }
 
     public Type getType()
     {
+        if (type == null) populate();
+
         return type;
     }
 
@@ -99,7 +133,7 @@ public class Attendee implements Comparable<Attendee>
         return this.name.compareTo(att.name);
     }
 
-    public void save()
+    public void save(SQLiteDatabase db)
     {
         ContentValues values = new ContentValues();
         values.put("id", this.id);
@@ -107,9 +141,33 @@ public class Attendee implements Comparable<Attendee>
         values.put("location", this.location);
         values.put("type", this.type.id);
 
+        db.insertWithOnConflict("attendees", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void save()
+    {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
-        db.insertWithOnConflict(DatabaseOpenHelper.ATTENDEES_TABLE_NAME,
-                null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        save(db);
         db.close();
+    }
+
+    public ArrayList<Event> getEvents()
+    {
+        ArrayList<Event> output = new ArrayList<Event>();
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("attendee_events_view",
+                new String[]{ "event", "year", "week", "day", "start", "end", "description" }, "attendee = " + this.id, null, null, null, "event", null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
+        {
+            output.add(new Event(cursor));
+            cursor.moveToNext();
+        }
+
+        db.close();
+
+        return output;
     }
 }
