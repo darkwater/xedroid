@@ -5,8 +5,15 @@
     android:layout_height="match_parent"
     tools:context="com.novaember.xedroid.OrganisationsActivity">
 
+    <ProgressBar
+        android:id="@+id/weekschedule_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true" />
+
     <com.novaember.xedroid.WeekScheduleView
-        android:id="@+id/weekSchedule"
+        android:id="@+id/weekschedule"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />

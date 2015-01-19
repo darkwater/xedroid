@@ -5,8 +5,15 @@
     android:layout_height="match_parent"
     tools:context="com.novaember.xedroid.AttendeesActivity">
 
+    <ProgressBar
+        android:id="@+id/attendees_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true" />
+
     <EditText
-        android:id="@+id/search_attendees"
+        android:id="@+id/attendees_search"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_attendees"

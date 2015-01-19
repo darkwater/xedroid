@@ -227,7 +227,6 @@ public class Event implements Comparable<Event>
 
         public Time(String str)
         {
-            Log.d("Xedroid", str);
             String[] split = str.split(":");
 
             this.hour = Integer.parseInt(split[0]);

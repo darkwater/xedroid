@@ -20,12 +20,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 public class WeekScheduleActivity extends ActionBarActivity
 {
     private WeekScheduleActivity self;
-    private WeekScheduleView weekScheduleView;
 
+    private WeekScheduleView weekScheduleView;
+    private ProgressBar progressBar;
 
     private Attendee attendee;
 
@@ -44,13 +47,16 @@ public class WeekScheduleActivity extends ActionBarActivity
         bar.setTitle(attendee.getName());
         bar.setDisplayHomeAsUpEnabled(true);
 
-        weekScheduleView = (WeekScheduleView) findViewById(R.id.weekSchedule);
+        weekScheduleView = (WeekScheduleView) findViewById(R.id.weekschedule);
+        progressBar = (ProgressBar) findViewById(R.id.weekschedule_progressbar);
 
         final int year = 2015;
         final int week = 4;
 
         if (attendee.getWeekScheduleAge(year, week) == 0)
         {
+            weekScheduleView.setVisibility(View.GONE);
+
             new AsyncTask<Void, Void, ArrayList<Event>>()
             {
                 protected ArrayList<Event> doInBackground(Void... _)
@@ -62,6 +68,8 @@ public class WeekScheduleActivity extends ActionBarActivity
                 protected void onPostExecute(ArrayList<Event> atts)
                 {
                     weekScheduleView.addFromArrayList(atts);
+                    progressBar.setVisibility(View.GONE);
+                    weekScheduleView.setVisibility(View.VISIBLE);
                     invalidateView();
                 }
             }.execute();
@@ -69,6 +77,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         else
         {
             ArrayList<Event> attendees = attendee.getEvents(year, week);
+            progressBar.setVisibility(View.GONE);
             weekScheduleView.addFromArrayList(attendees);
         }
 

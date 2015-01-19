@@ -19,12 +19,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class OrganisationsActivity extends ActionBarActivity
 {
     private OrganisationAdapter organisations;
     private OrganisationsActivity self;
+
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,6 +38,8 @@ public class OrganisationsActivity extends ActionBarActivity
         setContentView(R.layout.activity_organisations);
 
         organisations = new OrganisationAdapter(this);
+
+        progressBar = (ProgressBar) findViewById(R.id.organisations_progressbar);
 
         ListView organisationsView = (ListView) findViewById(R.id.organisations);
         organisationsView.setAdapter(organisations);
@@ -53,12 +58,14 @@ public class OrganisationsActivity extends ActionBarActivity
                 protected void onPostExecute(ArrayList<Organisation> orgs)
                 {
                     organisations.addFromArrayList(orgs);
+                    progressBar.setVisibility(View.GONE);
                 }
             }.execute();
         }
         else
         {
             organisations.addFromArrayList(orgs);
+            progressBar.setVisibility(View.GONE);
         }
 
         organisationsView.setOnItemClickListener(new OnItemClickListener()

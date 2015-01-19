@@ -24,13 +24,17 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class LocationsActivity extends ActionBarActivity
 {
-    LocationsActivity self;
-    LocationAdapter locations;
-    Organisation organisation;
+    private LocationsActivity self;
+    private LocationAdapter locations;
+
+    private ProgressBar progressBar;
+
+    private Organisation organisation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -50,6 +54,8 @@ public class LocationsActivity extends ActionBarActivity
 
         locations = new LocationAdapter(this);
 
+        progressBar = (ProgressBar) findViewById(R.id.locations_progressbar);
+
         ListView locationsView = (ListView) findViewById(R.id.locations);
         locationsView.setAdapter(locations);
 
@@ -67,12 +73,14 @@ public class LocationsActivity extends ActionBarActivity
                 protected void onPostExecute(ArrayList<Location> locs)
                 {
                     locations.addFromArrayList(locs);
+                    progressBar.setVisibility(View.GONE);
                 }
             }.execute();
         }
         else
         {
             locations.addFromArrayList(locs);
+            progressBar.setVisibility(View.GONE);
         }
 
         locationsView.setOnItemClickListener(new OnItemClickListener()

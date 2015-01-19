@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -25,12 +26,16 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class AttendeesActivity extends ActionBarActivity
 {
     private AttendeeAdapter attendees;
     private AttendeesActivity self;
+
+    private ProgressBar progressBar;
+    private EditText searchInput;
 
     private Location location;
 
@@ -51,29 +56,42 @@ public class AttendeesActivity extends ActionBarActivity
 
         attendees = new AttendeeAdapter(this);
 
+        progressBar = (ProgressBar) findViewById(R.id.attendees_progressbar);
+        searchInput = (EditText) findViewById(R.id.attendees_search);
+
         ListView attendeesView = (ListView) findViewById(R.id.attendees);
         attendeesView.setAdapter(attendees);
 
         ArrayList<Attendee> atts = location.getAttendees();
         if (atts.isEmpty())
         {
-            new AsyncTask<Void, Void, ArrayList<Attendee>>()
+            searchInput.setVisibility(View.GONE);
+
+            new AsyncTask<ProgressBar, Void, ArrayList<Attendee>>()
             {
-                protected ArrayList<Attendee> doInBackground(Void... _)
+                protected ArrayList<Attendee> doInBackground(ProgressBar... pBar)
                 {
-                    Xedule.updateAttendees(location.getId());
+                    Xedule.updateAttendees(location.getId(), pBar[0]);
                     return location.getAttendees();
                 }
 
                 protected void onPostExecute(ArrayList<Attendee> atts)
                 {
                     attendees.addFromArrayList(atts);
+                    progressBar.setVisibility(View.GONE);
+                    searchInput.setVisibility(View.VISIBLE);
+
+                    if (searchInput.requestFocus())
+                    {
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    }
                 }
-            }.execute();
+            }.execute(progressBar);
         }
         else
         {
             attendees.addFromArrayList(atts);
+            progressBar.setVisibility(View.GONE);
         }
 
         attendeesView.setOnItemClickListener(new OnItemClickListener()
@@ -94,7 +112,7 @@ public class AttendeesActivity extends ActionBarActivity
             }
         });
 
-        EditText searchInput = (EditText) findViewById(R.id.search_attendees);
+        EditText searchInput = (EditText) findViewById(R.id.attendees_search);
 
         // Work around a bug where EditText padding doesn't always get applied from the XML file
         searchInput.setPadding(16, 16, 16, 16);

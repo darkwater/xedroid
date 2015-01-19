@@ -5,6 +5,13 @@
     android:layout_height="match_parent"
     tools:context="com.novaember.xedroid.OrganisationsActivity">
 
+    <ProgressBar
+        android:id="@+id/organisations_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true" />
+
     <ListView
         android:id="@+id/organisations"
         android:layout_width="match_parent"

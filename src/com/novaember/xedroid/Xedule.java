@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 public class Xedule
 {
@@ -124,7 +125,7 @@ public class Xedule
         }
     }
 
-    public static void updateAttendees(int location)
+    public static void updateAttendees(int location, ProgressBar progressBar)
     {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
         db.beginTransaction();
@@ -133,11 +134,19 @@ public class Xedule
         {
             JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location + ".json");
 
+            if (progressBar != null)
+            {
+                progressBar.setIndeterminate(false);
+                progressBar.setMax(attendeesJSONArray.length());
+            }
+
             for (int i = 0; i < attendeesJSONArray.length(); i++)
             {
                 JSONObject obj = attendeesJSONArray.getJSONObject(i);
 
                 new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getInt("type")).save(db);
+
+                if (progressBar != null) progressBar.setProgress(i);
             }
 
             db.setTransactionSuccessful();
