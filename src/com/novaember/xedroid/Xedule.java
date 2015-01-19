@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -164,6 +165,8 @@ public class Xedule
 
             for (int i = 0; i < daysJSONArray.length(); i++)
             {
+                if (daysJSONArray.isNull(i)) continue;
+
                 JSONObject dayJSONObject = daysJSONArray.getJSONObject(i);
                 JSONArray eventsJSONArray = dayJSONObject.getJSONArray("events");
 
@@ -187,6 +190,13 @@ public class Xedule
                     event.save(db);
                 }
             }
+
+            ContentValues values = new ContentValues();
+            values.put("attendee", attendee);
+            values.put("year", year);
+            values.put("week", week);
+            values.put("lastUpdate", System.currentTimeMillis() / 1000L);
+            db.insertWithOnConflict("weekschedule_age", null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
             db.setTransactionSuccessful();
         }

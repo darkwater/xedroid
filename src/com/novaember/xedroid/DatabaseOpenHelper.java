@@ -72,6 +72,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "INNER JOIN attendees ON attendee_events.attendee = attendees.id" +
     ";";
 
+    public static final String WEEKSCHEDULE_AGE_TABLE_CREATE
+    =
+        "CREATE TABLE weekschedule_age (" +
+        "attendee       INT, " +
+        "year           INT, " +
+        "week           INT, " +
+        "lastUpdate     INT, " +
+
+        "FOREIGN KEY (attendee) REFERENCES attendees " +
+    ");";
+
     DatabaseOpenHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -86,6 +97,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(EVENTS_TABLE_CREATE);
         db.execSQL(ATTENDEE_EVENTS_TABLE_CREATE);
         db.execSQL(ATTENDEE_EVENTS_VIEW_CREATE);
+        db.execSQL(WEEKSCHEDULE_AGE_TABLE_CREATE);
     }
 
     @Override

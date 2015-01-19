@@ -49,16 +49,14 @@ public class WeekScheduleActivity extends ActionBarActivity
         final int year = 2015;
         final int week = 4;
 
-        ArrayList<Event> attendees = attendee.getEvents();
-        Log.d("Xedroid", "Size: " + attendees.size());
-        if (attendees.isEmpty())
+        if (attendee.getWeekScheduleAge(year, week) == 0)
         {
             new AsyncTask<Void, Void, ArrayList<Event>>()
             {
                 protected ArrayList<Event> doInBackground(Void... _)
                 {
                     Xedule.updateEvents(attendee.getId(), year, week);
-                    return attendee.getEvents();
+                    return attendee.getEvents(year, week);
                 }
 
                 protected void onPostExecute(ArrayList<Event> atts)
@@ -70,6 +68,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         }
         else
         {
+            ArrayList<Event> attendees = attendee.getEvents(year, week);
             weekScheduleView.addFromArrayList(attendees);
         }
 

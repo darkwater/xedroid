@@ -127,6 +127,26 @@ public class Attendee implements Comparable<Attendee>
         return type;
     }
 
+    public int getWeekScheduleAge(int year, int week)
+    {
+        int output = 0;
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("weekschedule_age",
+                new String[]{ "lastUpdate" }, "attendee = ? AND year = ? AND week = ?",
+                new String[]{ String.valueOf(id), String.valueOf(year), String.valueOf(week) }, null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            output = cursor.getInt(0);
+        }
+
+        db.close();
+
+        return output;
+    }
+
     @Override
     public int compareTo(Attendee att)
     {
@@ -151,13 +171,14 @@ public class Attendee implements Comparable<Attendee>
         db.close();
     }
 
-    public ArrayList<Event> getEvents()
+    public ArrayList<Event> getEvents(int year, int week)
     {
         ArrayList<Event> output = new ArrayList<Event>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
         Cursor cursor = db.query("attendee_events_view",
-                new String[]{ "event", "year", "week", "day", "start", "end", "description" }, "attendee = " + this.id, null, null, null, "event", null);
+                new String[]{ "event", "year", "week", "day", "start", "end", "description" }, "attendee = ? AND year = ? AND week = ?",
+                new String[]{ String.valueOf(id), String.valueOf(year), String.valueOf(week) }, null, null, "event", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())
