@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,6 +73,16 @@ public class AttendeesActivity extends ActionBarActivity
             {
                 protected ArrayList<Attendee> doInBackground(ProgressBar... pBar)
                 {
+                    try
+                    {
+                        Looper.prepare();
+                        new Handler();
+                    }
+                    catch (Exception e)
+                    {
+                        // TODO: Investigate (Lollipop needs a looper for whatever reason)
+                    }
+
                     Xedule.updateAttendees(location.getId(), pBar[0]);
                     return location.getAttendees();
                 }
