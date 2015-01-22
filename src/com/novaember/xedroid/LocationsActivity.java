@@ -62,20 +62,7 @@ public class LocationsActivity extends ActionBarActivity
         ArrayList<Location> locs = organisation.getLocations();
         if (locs.isEmpty())
         {
-            new AsyncTask<Void, Void, ArrayList<Location>>()
-            {
-                protected ArrayList<Location> doInBackground(Void... _)
-                {
-                    Xedule.updateLocations(organisation.getId());
-                    return organisation.getLocations();
-                }
-
-                protected void onPostExecute(ArrayList<Location> locs)
-                {
-                    locations.addFromArrayList(locs);
-                    progressBar.setVisibility(View.GONE);
-                }
-            }.execute();
+            refresh();
         }
         else
         {
@@ -102,11 +89,32 @@ public class LocationsActivity extends ActionBarActivity
         });
 	}
 
+    public void refresh()
+    {
+        progressBar.setVisibility(View.VISIBLE);
+        locations.clear();
+
+        new AsyncTask<Void, Void, ArrayList<Location>>()
+        {
+            protected ArrayList<Location> doInBackground(Void... _)
+            {
+                Xedule.updateLocations(organisation.getId());
+                return organisation.getLocations();
+            }
+
+            protected void onPostExecute(ArrayList<Location> locs)
+            {
+                locations.addFromArrayList(locs);
+                progressBar.setVisibility(View.GONE);
+            }
+        }.execute();
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.locations, menu);
 		return true;
 	}
 
@@ -117,10 +125,19 @@ public class LocationsActivity extends ActionBarActivity
         // handle clicks on the Home/Up button, so long as you specify a parent
         // activity in AndroidManifest.xml.
 		int id = item.getItemId();
+
+        if (id == R.id.locations_refresh)
+        {
+            refresh();
+
+            return true;
+        }
+
 		if (id == R.id.action_settings)
         {
 			return true;
 		}
+
 		return super.onOptionsItemSelected(item);
 	}
 }
@@ -150,6 +167,13 @@ class LocationAdapter extends BaseAdapter
         {
             this.add(loc);
         }
+
+        this.notifyDataSetChanged();
+    }
+
+    public void clear()
+    {
+        data.clear();
 
         this.notifyDataSetChanged();
     }

@@ -18,7 +18,8 @@ import android.widget.ProgressBar;
 
 public class Xedule
 {
-    private int cacheTimeout = 60; // in seconds
+    private static int cacheTimeout = 60; // in seconds
+    private static boolean cacheEnabled = false;
     private static String apiSite = "http://xedule.novaember.com/";
 
     public static JSONArray getArray(String location) throws JSONException
@@ -36,7 +37,7 @@ public class Xedule
         File cacheFile = new File(Xedroid.getContext().getCacheDir(), location);
         String output = null;
 
-        if (cacheFile.exists()) try
+        if (cacheEnabled && cacheFile.exists()) try
         {
             BufferedReader cacheReader = new BufferedReader(new FileReader(cacheFile));
             StringBuilder sb = new StringBuilder();

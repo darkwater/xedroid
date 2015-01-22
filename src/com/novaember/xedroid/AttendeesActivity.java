@@ -69,38 +69,7 @@ public class AttendeesActivity extends ActionBarActivity
         ArrayList<Attendee> atts = location.getAttendees();
         if (atts.isEmpty())
         {
-            searchInput.setVisibility(View.GONE);
-
-            new AsyncTask<ProgressBar, Void, ArrayList<Attendee>>()
-            {
-                protected ArrayList<Attendee> doInBackground(ProgressBar... pBar)
-                {
-                    try
-                    {
-                        Looper.prepare();
-                        new Handler();
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO: Investigate (Lollipop needs a looper for whatever reason)
-                    }
-
-                    Xedule.updateAttendees(location.getId(), pBar[0]);
-                    return location.getAttendees();
-                }
-
-                protected void onPostExecute(ArrayList<Attendee> atts)
-                {
-                    attendees.addFromArrayList(atts);
-                    progressBar.setVisibility(View.GONE);
-                    searchInput.setVisibility(View.VISIBLE);
-
-                    if (searchInput.requestFocus())
-                    {
-                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                    }
-                }
-            }.execute(progressBar);
+            refresh();
         }
         else
         {
@@ -153,11 +122,50 @@ public class AttendeesActivity extends ActionBarActivity
         });
     }
 
+    public void refresh()
+    {
+        searchInput.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(true);
+        attendees.clear();
+
+        new AsyncTask<ProgressBar, Void, ArrayList<Attendee>>()
+        {
+            protected ArrayList<Attendee> doInBackground(ProgressBar... pBar)
+            {
+                try
+                {
+                    Looper.prepare();
+                    new Handler();
+                }
+                catch (Exception e)
+                {
+                    // TODO: Investigate (Lollipop needs a looper for whatever reason)
+                }
+
+                Xedule.updateAttendees(location.getId(), pBar[0]);
+                return location.getAttendees();
+            }
+
+            protected void onPostExecute(ArrayList<Attendee> atts)
+            {
+                attendees.addFromArrayList(atts);
+                progressBar.setVisibility(View.GONE);
+                searchInput.setVisibility(View.VISIBLE);
+
+                if (searchInput.requestFocus())
+                {
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        }.execute(progressBar);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.attendees, menu);
         return true;
     }
 
@@ -168,6 +176,13 @@ public class AttendeesActivity extends ActionBarActivity
         // handle clicks on the Home/Up button, so long as you specify a parent
         // activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == R.id.attendees_refresh)
+        {
+            refresh();
+
+            return true;
+        }
 
         if (id == R.id.action_settings)
         {
@@ -232,6 +247,13 @@ class AttendeeAdapter extends BaseAdapter implements Filterable
         {
             this.add(att);
         }
+    }
+
+    public void clear()
+    {
+        data.clear();
+
+        this.notifyDataSetChanged();
     }
 
     public int getCount()

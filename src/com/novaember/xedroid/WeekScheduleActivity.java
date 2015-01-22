@@ -59,24 +59,7 @@ public class WeekScheduleActivity extends ActionBarActivity
 
         if (attendee.getWeekScheduleAge(year, week) == 0)
         {
-            weekScheduleView.setVisibility(View.GONE);
-
-            new AsyncTask<Void, Void, ArrayList<Event>>()
-            {
-                protected ArrayList<Event> doInBackground(Void... _)
-                {
-                    Xedule.updateEvents(attendee.getId(), year, week);
-                    return attendee.getEvents(year, week);
-                }
-
-                protected void onPostExecute(ArrayList<Event> atts)
-                {
-                    weekScheduleView.addFromArrayList(atts);
-                    progressBar.setVisibility(View.GONE);
-                    weekScheduleView.setVisibility(View.VISIBLE);
-                    invalidateView();
-                }
-            }.execute();
+            refresh(year, week);
         }
         else
         {
@@ -110,6 +93,29 @@ public class WeekScheduleActivity extends ActionBarActivity
 //                }
 //            }
 //        });
+    }
+
+    public void refresh(final int year, final int week)
+    {
+        weekScheduleView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+
+        new AsyncTask<Void, Void, ArrayList<Event>>()
+        {
+            protected ArrayList<Event> doInBackground(Void... _)
+            {
+                Xedule.updateEvents(attendee.getId(), year, week);
+                return attendee.getEvents(year, week);
+            }
+
+            protected void onPostExecute(ArrayList<Event> atts)
+            {
+                weekScheduleView.addFromArrayList(atts);
+                progressBar.setVisibility(View.GONE);
+                weekScheduleView.setVisibility(View.VISIBLE);
+                invalidateView();
+            }
+        }.execute();
     }
 
     @Override
@@ -156,6 +162,13 @@ public class WeekScheduleActivity extends ActionBarActivity
             }
 
             editor.commit();
+
+            return true;
+        }
+
+        if (id == R.id.weekschedule_refresh)
+        {
+            refresh(2015, 4);
 
             return true;
         }
