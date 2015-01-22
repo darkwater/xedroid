@@ -90,15 +90,19 @@ public class Attendee implements Comparable<Attendee>
         }
     }
 
-    public void populate()
+    public boolean populate()
     {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
         Cursor cursor = db.query("attendees", new String[]{ "id", "name", "location", "type" }, "id = " + this.id, null, null, null, "id", null);
+
+        if (cursor == null || cursor.getCount() == 0) return false;
 
         cursor.moveToFirst();
         this.name = cursor.getString(1);
         this.location = cursor.getInt(2);
         this.type = Type.getById(cursor.getInt(3));
+
+        return true;
     }
 
     public int getId()

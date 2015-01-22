@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -74,6 +77,15 @@ public class OrganisationsActivity extends ActionBarActivity
             {
                 try
                 {
+                    if (listview.getAdapter().getItemId(pos) == -1)
+                    {
+                        Intent intent = new Intent(self, WeekScheduleActivity.class);
+                        intent.putExtra("attendeeId", ((OrganisationAdapter) listview.getAdapter()).getMyAttendee().getId());
+                        startActivity(intent);
+
+                        return;
+                    }
+
                     Organisation org = (Organisation) listview.getAdapter().getItem(pos);
                     Intent intent = new Intent(self, LocationsActivity.class);
                     intent.putExtra("organisationId", org.getId());
@@ -85,6 +97,23 @@ public class OrganisationsActivity extends ActionBarActivity
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+        Attendee myattendee = new Attendee(sharedPref.getInt(getString(R.string.preference_myschedule_key), 0));
+        if (myattendee.populate())
+        {
+            organisations.setMySchedule(myattendee);
+        }
+        else
+        {
+            organisations.setMySchedule(null);
+        }
     }
 
     @Override
@@ -115,6 +144,11 @@ class OrganisationAdapter extends BaseAdapter
     private Activity activity;
     private ArrayList<Organisation> data;
     private static LayoutInflater inflater = null;
+    private Attendee myattendee = null;
+
+    private static final int TYPE_LINEARLAYOUT = 0;
+    private static final int TYPE_TEXTVIEW = 1;
+    private static final int TYPE_MAX_COUNT = 2;
 
     public OrganisationAdapter(Activity a)
     {
@@ -139,19 +173,26 @@ class OrganisationAdapter extends BaseAdapter
         }
     }
 
+    public void setMySchedule(Attendee myattendee)
+    {
+        this.myattendee = myattendee;
+        
+        this.notifyDataSetChanged();
+    }
+
     public int getCount()
     {
-        return data.size();
+        return data.size() + ((myattendee != null) ? 1 : 0);
     }
 
     public Organisation getItem(int position)
     {
-        return data.get(position);
+        return data.get((int) getItemId(position));
     }
 
     public long getItemId(int position)
     {
-        return position;
+        return position - ((myattendee != null) ? 1 : 0);
     }
 
     public void sort()
@@ -159,16 +200,46 @@ class OrganisationAdapter extends BaseAdapter
         Collections.sort(data);
     }
 
+    public Attendee getMyAttendee()
+    {
+        return myattendee;
+    }
+
+    public int getViewTypeCount()
+    {
+        return TYPE_MAX_COUNT;
+    }
+
+    public int getItemViewType(int position)
+    {
+        if (position == 0 && myattendee != null)
+        {
+            return TYPE_LINEARLAYOUT;
+        }
+
+        return TYPE_TEXTVIEW;
+    }
+
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        TextView view = (TextView) convertView;
-        if(convertView == null)
-            view = (TextView) inflater.inflate(R.layout.organisation_item, null);
+        if (position == 0 && myattendee != null)
+        {
+            if (convertView == null)
+                convertView = (View) inflater.inflate(R.layout.attendee_item, null);
 
-        Organisation org = data.get(position);
+            ((TextView) convertView.findViewById(R.id.attendee_name)).setText(myattendee.getName());
+            ((TextView) convertView.findViewById(R.id.attendee_type)).setText(R.string.myschedule_label);
 
-        view.setText(org.getName());
+            return convertView;
+        }
 
-        return view;
+        if (convertView == null)
+            convertView = (View) inflater.inflate(R.layout.organisation_item, null);
+
+        Organisation org = getItem(position);
+
+        ((TextView) convertView).setText(org.getName());
+
+        return convertView;
     }
 }

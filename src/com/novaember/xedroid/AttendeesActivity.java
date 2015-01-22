@@ -178,7 +178,8 @@ public class AttendeesActivity extends ActionBarActivity
         {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("organisationId", location.getOrganisation().getId());
-            if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+            if (NavUtils.shouldUpRecreateTask(this, upIntent))
+            {
                 // This activity is NOT part of this app's task, so create a new task
                 // when navigating up, with a synthesized back stack.
                 TaskStackBuilder.create(this)
@@ -186,10 +187,14 @@ public class AttendeesActivity extends ActionBarActivity
                         .addNextIntentWithParentStack(upIntent)
                         // Navigate up to the closest parent
                         .startActivities();
-            } else {
+            }
+            else
+            {
                 // This activity is part of this app's task, so simply
                 // navigate up to the logical parent activity.
-                NavUtils.navigateUpTo(this, upIntent);
+                Intent intent = new Intent(self, LocationsActivity.class);
+                intent.putExtra("organisationId", location.getOrganisation().getId());
+                startActivity(intent);
             }
             return true;
         }

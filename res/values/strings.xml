@@ -8,8 +8,14 @@
     <string name="organisations_nodata">No data!</string>
     <string name="search_attendees">Zoeken</string>
 
+    <string name="myschedule_label">Mijn rooster</string>
+
     <string name="attendee_type_class">Klas</string>
     <string name="attendee_type_staff">Medewerker</string>
     <string name="attendee_type_facility">Faciliteit</string>
+
+    <string name="weekschedule_star">Mijn rooster</string>
+
+    <string name="preference_myschedule_key">myschedule</string>
 
 </resources>

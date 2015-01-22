@@ -15,7 +15,9 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -114,7 +116,14 @@ public class WeekScheduleActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.weekschedule, menu);
+
+        SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+        boolean isMine = sharedPref.getInt(getString(R.string.preference_myschedule_key), 0) == attendee.getId();
+        MenuItem item = menu.findItem(R.id.weekschedule_star);
+        item.setChecked(isMine);
+        item.setIcon(isMine ? R.drawable.ic_star_white_48dp : R.drawable.ic_star_outline_white_48dp);
+
         return true;
     }
 
@@ -126,6 +135,31 @@ public class WeekScheduleActivity extends ActionBarActivity
         // activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        if (id == R.id.weekschedule_star)
+        {
+            SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+
+            if (!item.isChecked())
+            {
+                editor.putInt(getString(R.string.preference_myschedule_key), attendee.getId());
+
+                item.setChecked(true);
+                item.setIcon(R.drawable.ic_star_white_48dp);
+            }
+            else
+            {
+                editor.putInt(getString(R.string.preference_myschedule_key), 0);
+
+                item.setChecked(false);
+                item.setIcon(R.drawable.ic_star_outline_white_48dp);
+            }
+
+            editor.commit();
+
+            return true;
+        }
+
         if (id == R.id.action_settings)
         {
             return true;
@@ -135,7 +169,8 @@ public class WeekScheduleActivity extends ActionBarActivity
         {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("locationId", attendee.getLocation().getId());
-            if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+            if (NavUtils.shouldUpRecreateTask(this, upIntent))
+            {
                 // This activity is NOT part of this app's task, so create a new task
                 // when navigating up, with a synthesized back stack.
                 TaskStackBuilder.create(this)
@@ -143,10 +178,14 @@ public class WeekScheduleActivity extends ActionBarActivity
                         .addNextIntentWithParentStack(upIntent)
                         // Navigate up to the closest parent
                         .startActivities();
-            } else {
+            }
+            else
+            {
                 // This activity is part of this app's task, so simply
                 // navigate up to the logical parent activity.
-                NavUtils.navigateUpTo(this, upIntent);
+                Intent intent = new Intent(self, AttendeesActivity.class);
+                intent.putExtra("locationId", attendee.getLocation().getId());
+                startActivity(intent);
             }
             return true;
         }
