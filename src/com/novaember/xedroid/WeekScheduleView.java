@@ -69,6 +69,11 @@ public class WeekScheduleView extends View
     {
         events.add(event);
     }
+
+    public void clear()
+    {
+        events.clear();
+    }
     
     public void addFromArrayList(ArrayList<Event> input)
     {

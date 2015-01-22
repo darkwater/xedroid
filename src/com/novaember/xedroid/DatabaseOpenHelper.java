@@ -24,6 +24,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         "id             INT,  " +
         "name           TEXT, " +
         "organisation   INT,  " +
+        "weeks          TEXT, " +
 
         "PRIMARY KEY (id), " +
         "FOREIGN KEY (organisation) REFERENCES organisations " +

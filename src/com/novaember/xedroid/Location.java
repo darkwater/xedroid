@@ -5,30 +5,34 @@ import java.util.ArrayList;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 public class Location implements Comparable<Location>
 {
     private int id;
     private String name;
     private int organisation;
+    private String[] weeks;
 
     public Location(int id)
     {
         this.id = id;
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation" }, "id = " + this.id, null, null, null, "id", null);
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "id = " + this.id, null, null, null, "id", null);
 
         cursor.moveToFirst();
         this.name = cursor.getString(1);
         this.organisation = cursor.getInt(2);
+        this.weeks = cursor.getString(3).split(",");
     }
 
-    public Location(int id, String name, int organisation)
+    public Location(int id, String name, int organisation, String[] weeks)
     {
         this.id = id;
         this.name = name;
         this.organisation = organisation;
+        this.weeks = weeks;
     }
 
     public Location(Cursor cursor)
@@ -36,6 +40,7 @@ public class Location implements Comparable<Location>
         this.id = cursor.getInt(0);
         this.name = cursor.getString(1);
         this.organisation = cursor.getInt(2);
+        this.weeks = cursor.getString(3).split(",");
     }
 
     public int getId()
@@ -53,6 +58,11 @@ public class Location implements Comparable<Location>
         return new Organisation(this.organisation);
     }
 
+    public String[] getWeeks()
+    {
+        return weeks;
+    }
+
     @Override
     public int compareTo(Location loc)
     {
@@ -62,9 +72,10 @@ public class Location implements Comparable<Location>
     public void save(SQLiteDatabase db)
     {
         ContentValues values = new ContentValues();
-        values.put("id", this.id);
-        values.put("name", this.name);
-        values.put("organisation", this.organisation);
+        values.put("id", id);
+        values.put("name", name);
+        values.put("organisation", organisation);
+        values.put("weeks", TextUtils.join(",", weeks));
 
         db.insertWithOnConflict("locations", null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }

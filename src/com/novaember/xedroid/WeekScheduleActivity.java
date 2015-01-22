@@ -22,10 +22,17 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 public class WeekScheduleActivity extends ActionBarActivity
 {
@@ -35,6 +42,10 @@ public class WeekScheduleActivity extends ActionBarActivity
     private ProgressBar progressBar;
 
     private Attendee attendee;
+    private int year;
+    private int week;
+
+    private WeekAdapter weekAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,25 +59,34 @@ public class WeekScheduleActivity extends ActionBarActivity
         attendee = new Attendee(intent.getIntExtra("attendeeId", 0));
 
         ActionBar bar = getSupportActionBar();
-        bar.setTitle(attendee.getName());
+        bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayHomeAsUpEnabled(true);
 
         weekScheduleView = (WeekScheduleView) findViewById(R.id.weekschedule);
         progressBar = (ProgressBar) findViewById(R.id.weekschedule_progressbar);
 
-        final int year = 2015;
-        final int week = 4;
+        weekAdapter = new WeekAdapter(this, attendee.getLocation().getWeeks());
+        weekAdapter.setTitle(attendee.getName());
 
-        if (attendee.getWeekScheduleAge(year, week) == 0)
+        ActionBar.OnNavigationListener weekNavigationListener = new ActionBar.OnNavigationListener()
         {
-            refresh(year, week);
-        }
-        else
-        {
-            ArrayList<Event> attendees = attendee.getEvents(year, week);
-            progressBar.setVisibility(View.GONE);
-            weekScheduleView.addFromArrayList(attendees);
-        }
+            @Override
+            public boolean onNavigationItemSelected(int position, long itemId)
+            {
+                Week weekObj = weekAdapter.getItem(position);
+                year = weekObj.year;
+                week = weekObj.week;
+
+                refresh(false);
+
+                return true;
+            }
+        };
+
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        bar.setListNavigationCallbacks(weekAdapter, weekNavigationListener);
+
+        bar.setSelectedNavigationItem(weekAdapter.getCount() - 1);
 
         Timer timer = new Timer();
         InvalidateTimer task = new InvalidateTimer(this);
@@ -95,27 +115,39 @@ public class WeekScheduleActivity extends ActionBarActivity
 //        });
     }
 
-    public void refresh(final int year, final int week)
+    public void refresh(boolean force)
     {
-        weekScheduleView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+        weekScheduleView.clear();
 
-        new AsyncTask<Void, Void, ArrayList<Event>>()
+        if (force || attendee.getWeekScheduleAge(year, week) == 0)
         {
-            protected ArrayList<Event> doInBackground(Void... _)
-            {
-                Xedule.updateEvents(attendee.getId(), year, week);
-                return attendee.getEvents(year, week);
-            }
+            weekScheduleView.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
 
-            protected void onPostExecute(ArrayList<Event> atts)
+            new AsyncTask<Void, Void, ArrayList<Event>>()
             {
-                weekScheduleView.addFromArrayList(atts);
-                progressBar.setVisibility(View.GONE);
-                weekScheduleView.setVisibility(View.VISIBLE);
-                invalidateView();
-            }
-        }.execute();
+                protected ArrayList<Event> doInBackground(Void... _)
+                {
+                    Xedule.updateEvents(attendee.getId(), year, week);
+                    return attendee.getEvents(year, week);
+                }
+
+                protected void onPostExecute(ArrayList<Event> atts)
+                {
+                    weekScheduleView.addFromArrayList(atts);
+                    progressBar.setVisibility(View.GONE);
+                    weekScheduleView.setVisibility(View.VISIBLE);
+                    invalidateView();
+                }
+            }.execute();
+        }
+        else
+        {
+            ArrayList<Event> attendees = attendee.getEvents(year, week);
+            progressBar.setVisibility(View.GONE);
+            weekScheduleView.addFromArrayList(attendees);
+            weekScheduleView.invalidate();
+        }
     }
 
     @Override
@@ -168,7 +200,7 @@ public class WeekScheduleActivity extends ActionBarActivity
 
         if (id == R.id.weekschedule_refresh)
         {
-            refresh(2015, 4);
+            refresh(true);
 
             return true;
         }
@@ -214,6 +246,110 @@ public class WeekScheduleActivity extends ActionBarActivity
                 weekScheduleView.invalidate();
             }
         });
+    }
+}
+
+class WeekAdapter extends BaseAdapter
+{
+    private ArrayList<Week> weeks;
+    private String title;
+    private static LayoutInflater inflater = null;
+
+    public WeekAdapter(Context context, String[] weeks)
+    {
+        this.weeks = new ArrayList<Week>();
+        for (String week : weeks)
+        {
+            this.weeks.add(new Week(week));
+        }
+
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    public void setTitle(String title)
+    {
+        this.title = title;
+    }
+
+    public Week getItem(int position)
+    {
+        return weeks.get(position);
+    }
+
+    public long getItemId(int position)
+    {
+        return position;
+    }
+
+    public int getCount()
+    {
+        return weeks.size();
+    }
+
+    public View getDropDownView(int position, View convertView, ViewGroup parent)
+    {
+        if (convertView == null)
+            convertView = inflater.inflate(R.layout.week_item, parent, false);
+
+        ((TextView) convertView).setText(getItem(position).toShortString());
+
+        return convertView;
+    }
+
+    public View getView(int position, View convertView, ViewGroup parent)
+    {
+        LinearLayout view = (LinearLayout) inflater.inflate(R.layout.week_dropdown_header, null);
+
+        Week week = getItem(position);
+
+        ((TextView) view.findViewById(R.id.weekschedule_attendee_name)).setText(title);
+        ((TextView) view.findViewById(R.id.weekschedule_week)).setText(week.toShortString());
+
+        return view;
+    }
+}
+
+class Week
+{
+    public final int year;
+    public final int week;
+
+    public Week(String week)
+    {
+        String[] split = week.split("/");
+        if (split.length == 2)
+        {
+            this.year = Integer.parseInt(split[0]);
+            this.week = Integer.parseInt(split[1]);
+        }
+        else
+        {
+            this.year = 0;
+            this.week = 0;
+
+            Log.w("Xedroid", "Invalid week! " + week);
+        }
+    }
+
+    public Week(int year, int week)
+    {
+        this.year = year;
+        this.week = week;
+    }
+
+    public String toString()
+    {
+        return year + "/" + week;
+    }
+
+    public String toNiceString()
+    {
+        return year + " week " + week;
+    }
+
+    public String toShortString()
+    {
+        return "Week " + week;
     }
 }
 

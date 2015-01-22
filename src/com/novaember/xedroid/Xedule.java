@@ -110,8 +110,15 @@ public class Xedule
             for (int i = 0; i < locationsJSONArray.length(); i++)
             {
                 JSONObject obj = locationsJSONArray.getJSONObject(i);
+                JSONArray weeksJSONArray = obj.getJSONArray("weeks");
+                ArrayList<String> weeks = new ArrayList<String>();
 
-                new Location(obj.getInt("id"), obj.getString("name"), organisation).save(db);
+                for (int j = 0; j < weeksJSONArray.length(); j++)
+                {
+                    weeks.add(weeksJSONArray.getString(j));
+                }
+
+                new Location(obj.getInt("id"), obj.getString("name"), organisation, weeks.toArray(new String[weeks.size()])).save(db);
             }
 
             db.setTransactionSuccessful();
