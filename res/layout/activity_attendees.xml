@@ -12,16 +12,26 @@
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:indeterminate="true" />
 
-    <EditText
-        android:id="@+id/attendees_search"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/search_attendees"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="16dp"
-        android:textSize="16sp" />
+        android:padding="16dp"
+        android:height="64dp">
+
+        <EditText
+            android:id="@+id/attendees_search"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_attendees"
+            android:background="@android:color/transparent"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
 
     <ListView
         android:id="@+id/attendees"

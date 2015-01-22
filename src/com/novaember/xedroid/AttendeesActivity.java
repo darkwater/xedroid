@@ -97,9 +97,6 @@ public class AttendeesActivity extends ActionBarActivity
 
         EditText searchInput = (EditText) findViewById(R.id.attendees_search);
 
-        // Work around a bug where EditText padding doesn't always get applied from the XML file
-        searchInput.setPadding(16, 16, 16, 16);
-
         searchInput.addTextChangedListener(new TextWatcher()
         {
             @Override
