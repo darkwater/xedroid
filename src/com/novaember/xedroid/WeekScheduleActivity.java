@@ -3,6 +3,7 @@ package com.novaember.xedroid;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -86,7 +87,10 @@ public class WeekScheduleActivity extends ActionBarActivity
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         bar.setListNavigationCallbacks(weekAdapter, weekNavigationListener);
 
-        bar.setSelectedNavigationItem(weekAdapter.getCount() - 1);
+        Calendar calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        week = calendar.get(Calendar.WEEK_OF_YEAR);
+        bar.setSelectedNavigationItem(weekAdapter.selectWeek(year, week));
 
         Timer timer = new Timer();
         InvalidateTimer task = new InvalidateTimer(this);
@@ -148,6 +152,11 @@ public class WeekScheduleActivity extends ActionBarActivity
             weekScheduleView.addFromArrayList(attendees);
             weekScheduleView.invalidate();
         }
+
+        Calendar calendar = Calendar.getInstance();
+        int thisYear = calendar.get(Calendar.YEAR);
+        int thisWeek = calendar.get(Calendar.WEEK_OF_YEAR);
+        weekScheduleView.setCurrentWeek(year == thisYear && week == thisWeek);
     }
 
     @Override
@@ -284,6 +293,28 @@ class WeekAdapter extends BaseAdapter
     public int getCount()
     {
         return weeks.size();
+    }
+
+    public int selectWeek(int year, int week)
+    {
+        for (int i = 0; i < weeks.size(); i++)
+        {
+            Week w = weeks.get(i);
+
+            if (w.year == year && w.week == week)
+            {
+                return i;
+            }
+
+            if (w.year == year && w.week > week || w.year > year)
+            {
+                weeks.add(i, new Week(year, week));
+                return i;
+            }
+        }
+
+        weeks.add(new Week(year, week));
+        return weeks.size() - 1;
     }
 
     public View getDropDownView(int position, View convertView, ViewGroup parent)

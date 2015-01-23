@@ -27,6 +27,8 @@ public class WeekScheduleView extends View
     private int startDay = 1;
     private int endDay = 5;
 
+    private boolean currentWeek = false;
+
     private ArrayList<Event> events;
 
     public WeekScheduleView(Context context, AttributeSet attrs)
@@ -81,6 +83,11 @@ public class WeekScheduleView extends View
         {
             addEvent(event);
         }
+    }
+
+    public void setCurrentWeek(boolean currentWeek)
+    {
+        this.currentWeek = currentWeek;
     }
 
     protected void onDraw(Canvas canvas)
@@ -149,16 +156,19 @@ public class WeekScheduleView extends View
         }
 
         // Time line
-        Calendar calendar = Calendar.getInstance();
+        if (currentWeek)
+        {
+            Calendar calendar = Calendar.getInstance();
 
-        float hour = calendar.get(Calendar.HOUR_OF_DAY) + (float) calendar.get(Calendar.MINUTE) / 60;
-        float hourY = headerHeight + getYFromHour(hour, columnHeight);
+            float hour = calendar.get(Calendar.HOUR_OF_DAY) + (float) calendar.get(Calendar.MINUTE) / 60;
+            float hourY = headerHeight + getYFromHour(hour, columnHeight);
 
-        int day = (calendar.get(Calendar.DAY_OF_WEEK) - 2) % 7 + 1;
-        float dayLeft = columnWidth * day;
-        float dayRight = dayLeft + columnWidth;
+            int day = (calendar.get(Calendar.DAY_OF_WEEK) - 2) % 7 + 1;
+            float dayLeft = columnWidth * day;
+            float dayRight = dayLeft + columnWidth;
 
-        canvas.drawLine(dayLeft, hourY, dayRight, hourY, timeLinePaint);
+            canvas.drawLine(dayLeft, hourY, dayRight, hourY, timeLinePaint);
+        }
     }
 
     private float getPx(float x)
