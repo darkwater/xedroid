@@ -214,11 +214,6 @@ public class WeekScheduleActivity extends ActionBarActivity
             return true;
         }
 
-        if (id == R.id.action_settings)
-        {
-            return true;
-        }
-
         if (id == android.R.id.home)
         {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
