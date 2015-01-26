@@ -1,0 +1,46 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:gravity="top|left"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:background="#ffffff">
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/weekschedule_lines" />
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/weekschedule_lines" />
+
+    <View
+            android:id="@+id/weekschedule_event_color"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#ffaf00" />
+
+    <TextView
+            android:id="@+id/weekschedule_event_primary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/primary_text_light" />
+
+    <TextView
+            android:id="@+id/weekschedule_event_secondary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/weekschedule_event_primary_text"
+            android:layout_marginLeft="2dp"
+            android:gravity="center"
+            android:paddingTop="3dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/secondary_text_light" />
+
+</RelativeLayout>

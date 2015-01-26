@@ -22,6 +22,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -119,44 +121,53 @@ public class WeekScheduleActivity extends ActionBarActivity
 //        });
     }
 
-    public void refresh(boolean force)
+    public void refresh(final boolean force)
     {
+        weekScheduleView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(true);
+
         weekScheduleView.clear();
 
-        if (force || attendee.getWeekScheduleAge(year, week) == 0)
+        new AsyncTask<Void, Void, Void>()
         {
-            weekScheduleView.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
-
-            new AsyncTask<Void, Void, ArrayList<Event>>()
+            protected Void doInBackground(Void... _)
             {
-                protected ArrayList<Event> doInBackground(Void... _)
+                try
+                {
+                    Looper.prepare();
+                    new Handler();
+                }
+                catch (Exception e)
+                {
+                    // TODO: Investigate (Lollipop needs a looper for whatever reason)
+                }
+
+                if (force || attendee.getWeekScheduleAge(year, week) == 0)
                 {
                     Xedule.updateEvents(attendee.getId(), year, week);
-                    return attendee.getEvents(year, week);
+                    weekScheduleView.addFromArrayList(attendee.getEvents(year, week), progressBar);
                 }
-
-                protected void onPostExecute(ArrayList<Event> atts)
+                else
                 {
-                    weekScheduleView.addFromArrayList(atts);
-                    progressBar.setVisibility(View.GONE);
-                    weekScheduleView.setVisibility(View.VISIBLE);
-                    invalidateView();
+                    ArrayList<Event> attendees = attendee.getEvents(year, week);
+                    weekScheduleView.addFromArrayList(attendees, progressBar);
                 }
-            }.execute();
-        }
-        else
-        {
-            ArrayList<Event> attendees = attendee.getEvents(year, week);
-            progressBar.setVisibility(View.GONE);
-            weekScheduleView.addFromArrayList(attendees);
-            weekScheduleView.invalidate();
-        }
 
-        Calendar calendar = Calendar.getInstance();
-        int thisYear = calendar.get(Calendar.YEAR);
-        int thisWeek = calendar.get(Calendar.WEEK_OF_YEAR);
-        weekScheduleView.setCurrentWeek(year == thisYear && week == thisWeek);
+                return null;
+            }
+
+            protected void onPostExecute(Void _)
+            {
+                progressBar.setVisibility(View.GONE);
+                weekScheduleView.setVisibility(View.VISIBLE);
+
+                Calendar calendar = Calendar.getInstance();
+                int thisYear = calendar.get(Calendar.YEAR);
+                int thisWeek = calendar.get(Calendar.WEEK_OF_YEAR);
+                weekScheduleView.setCurrentWeek(year == thisYear && week == thisWeek);
+            }
+        }.execute();
     }
 
     @Override
@@ -247,7 +258,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                weekScheduleView.invalidate();
+//                weekScheduleView.invalidate();
             }
         });
     }

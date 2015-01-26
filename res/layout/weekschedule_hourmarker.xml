@@ -1,0 +1,23 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:gravity="top|left"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <View
+            android:layout_width="10dp"
+            android:layout_height="1dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:background="@color/weekschedule_lines" />
+
+    <TextView
+            android:id="@+id/weekschedule_hourmarker_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="9h"
+            android:gravity="right"
+            android:paddingRight="12dp"
+            android:textSize="16sp" />
+
+</RelativeLayout>
