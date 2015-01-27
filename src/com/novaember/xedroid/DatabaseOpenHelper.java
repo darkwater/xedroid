@@ -1,104 +1,42 @@
 package com.novaember.xedroid;
 
+import java.io.InputStream;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "xedroid";
     public static final int DATABASE_VERSION = 1;
 
-    public static final String ORGANISATIONS_TABLE_CREATE
-    =
-        "CREATE TABLE organisations (" +
-        "id             INT,  " +
-        "name           TEXT, " +
-
-        "PRIMARY KEY (id) " +
-    ");";
-
-    public static final String LOCATIONS_TABLE_CREATE
-    =
-        "CREATE TABLE locations (" +
-        "id             INT,  " +
-        "name           TEXT, " +
-        "organisation   INT,  " +
-        "weeks          TEXT, " +
-
-        "PRIMARY KEY (id), " +
-        "FOREIGN KEY (organisation) REFERENCES organisations " +
-    ");";
-
-    public static final String ATTENDEES_TABLE_CREATE
-    =
-        "CREATE TABLE attendees (" +
-        "id             INT,  " +
-        "name           TEXT, " +
-        "location       INT,  " +
-        "type           INT,  " +
-
-        "PRIMARY KEY (id), " +
-        "FOREIGN KEY (location) REFERENCES locations " +
-    ");";
-
-    public static final String EVENTS_TABLE_CREATE
-    =
-        "CREATE TABLE events (" +
-        "id             INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        "year           INT,  " +
-        "week           INT,  " +
-        "day            INT,  " +
-        "description    TEXT, " +
-        "start          TEXT, " +
-        "end            TEXT  " +
-    ");";
-
-    public static final String ATTENDEE_EVENTS_TABLE_CREATE
-    =
-        "CREATE TABLE attendee_events (" +
-        "attendee       INT, " +
-        "event          INT, " +
-
-        "FOREIGN KEY (attendee) REFERENCES attendees, " +
-        "FOREIGN KEY (event) REFERENCES events " +
-    ");";
-
-    public static final String ATTENDEE_EVENTS_VIEW_CREATE
-    =
-        "CREATE VIEW attendee_events_view AS " +
-        "SELECT attendee, event, year, week, day, description, start, end, name, location, type " +
-        "FROM attendee_events " +
-            "INNER JOIN events ON attendee_events.event = events.id " +
-            "INNER JOIN attendees ON attendee_events.attendee = attendees.id" +
-    ";";
-
-    public static final String WEEKSCHEDULE_AGE_TABLE_CREATE
-    =
-        "CREATE TABLE weekschedule_age (" +
-        "attendee       INT, " +
-        "year           INT, " +
-        "week           INT, " +
-        "lastUpdate     INT, " +
-
-        "FOREIGN KEY (attendee) REFERENCES attendees " +
-    ");";
+    private Context context;
 
     DatabaseOpenHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        db.execSQL(ORGANISATIONS_TABLE_CREATE);
-        db.execSQL(LOCATIONS_TABLE_CREATE);
-        db.execSQL(ATTENDEES_TABLE_CREATE);
-        db.execSQL(EVENTS_TABLE_CREATE);
-        db.execSQL(ATTENDEE_EVENTS_TABLE_CREATE);
-        db.execSQL(ATTENDEE_EVENTS_VIEW_CREATE);
-        db.execSQL(WEEKSCHEDULE_AGE_TABLE_CREATE);
+        try
+        {
+            InputStream inputStream = context.getResources().openRawResource(R.raw.init_sql);
+            byte[] reader = new byte[inputStream.available()];
+            while (inputStream.read(reader) != -1) {}
+
+            String[] queries = new String(reader).split("\n-\n");
+            for (String query : queries) db.execSQL(query);
+        }
+        catch (Exception e)
+        {
+            Log.e("Xedroid", "Could not create database.", e);
+        }
     }
 
     @Override

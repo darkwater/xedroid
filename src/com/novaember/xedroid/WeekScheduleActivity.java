@@ -49,6 +49,7 @@ public class WeekScheduleActivity extends ActionBarActivity
     private int week;
 
     private WeekAdapter weekAdapter;
+    private boolean refreshing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -123,9 +124,12 @@ public class WeekScheduleActivity extends ActionBarActivity
 
     public void refresh(final boolean force)
     {
+        if (refreshing) return;
+
         weekScheduleView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setIndeterminate(true);
+        refreshing = true;
 
         weekScheduleView.clear();
 
@@ -166,6 +170,8 @@ public class WeekScheduleActivity extends ActionBarActivity
                 int thisYear = calendar.get(Calendar.YEAR);
                 int thisWeek = calendar.get(Calendar.WEEK_OF_YEAR);
                 weekScheduleView.setCurrentWeek(year == thisYear && week == thisWeek);
+
+                refreshing = false;
             }
         }.execute();
     }

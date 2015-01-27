@@ -1,0 +1,80 @@
+CREATE TABLE organisations (
+    id             INT,
+    name           TEXT,
+
+    PRIMARY KEY (id)
+);
+
+-
+
+CREATE TABLE locations (
+    id             INT,
+    name           TEXT,
+    organisation   INT,
+    weeks          TEXT,
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (organisation) REFERENCES organisations
+);
+
+-
+
+CREATE TABLE attendees (
+    id             INT,
+    name           TEXT,
+    location       INT,
+    type           INT,
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (location) REFERENCES locations
+);
+
+-
+
+CREATE TABLE events (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    year           INT,
+    week           INT,
+    day            INT,
+    description    TEXT,
+    start          TEXT,
+    end            TEXT
+);
+
+-
+
+CREATE TABLE attendee_events (
+    attendee       INT,
+    event          INT,
+
+    FOREIGN KEY (attendee) REFERENCES attendees,
+    FOREIGN KEY (event) REFERENCES events
+);
+
+-
+
+CREATE TABLE weekschedule_age (
+    attendee       INT,
+    year           INT,
+    week           INT,
+    lastUpdate     INT,
+
+    FOREIGN KEY (attendee) REFERENCES attendees
+);
+
+-
+
+CREATE VIEW attendee_events_view AS
+    SELECT attendee, event, year, week, day, description, start, end, name, location, type
+    FROM attendee_events
+        INNER JOIN events ON attendee_events.event = events.id
+        INNER JOIN attendees ON attendee_events.attendee = attendees.id;
+
+-
+
+CREATE TRIGGER attendee_events_remove
+INSTEAD OF DELETE ON attendee_events_view
+BEGIN
+    DELETE FROM attendee_events WHERE attendee = old.attendee AND event = old.event;
+    DELETE FROM events WHERE id = old.event;
+END;

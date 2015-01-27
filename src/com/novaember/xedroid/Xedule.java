@@ -174,6 +174,9 @@ public class Xedule
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
         db.beginTransaction();
 
+        db.delete("attendee_events_view", "attendee = ? AND year = ? AND week = ?",
+                new String[]{ String.valueOf(attendee), String.valueOf(year), String.valueOf(week) });
+
         try
         {
             JSONArray daysJSONArray = Xedule.getArray("weekschedule." + attendee + ".json?year=" + year + "&week=" + week);
