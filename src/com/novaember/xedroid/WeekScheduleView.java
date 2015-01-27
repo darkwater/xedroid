@@ -7,9 +7,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
@@ -17,7 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class WeekScheduleView extends LinearLayout
+public class WeekScheduleView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener
 {
     private float startHour = 8.5f;
     private float endHour = 16.f;
@@ -30,6 +33,9 @@ public class WeekScheduleView extends LinearLayout
 
     private ArrayList<EventView> events;
     private ArrayList<AbsoluteLayout> dayColumns;
+
+    private OnClickListener onClickListener;
+    private OnLongClickListener onLongClickListener;
 
     public WeekScheduleView(Context context, AttributeSet attrs)
     {
@@ -65,6 +71,8 @@ public class WeekScheduleView extends LinearLayout
         eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
         eventView.setLayoutParams(params);
+        eventView.setOnClickListener(this);
+        eventView.setOnLongClickListener(this);
     }
 
     public void clear()
@@ -95,6 +103,28 @@ public class WeekScheduleView extends LinearLayout
         }
     }
 
+    public void setOnClickListener(View.OnClickListener onClickListener)
+    {
+        this.onClickListener = onClickListener;
+    }
+
+    public void setOnLongClickListener(View.OnLongClickListener onLongClickListener)
+    {
+        this.onLongClickListener = this.onLongClickListener;
+    }
+
+    public void onClick(View view)
+    {
+        if (onClickListener != null) onClickListener.onClick(view);
+    }
+
+    public boolean onLongClick(View view)
+    {
+        if (onLongClickListener != null) return onLongClickListener.onLongClick(view);
+
+        return false;
+    }
+
     public void setCurrentWeek(boolean currentWeek)
     {
         this.currentWeek = currentWeek;
@@ -116,6 +146,8 @@ public class WeekScheduleView extends LinearLayout
             inflate(context, R.layout.weekschedule_event, this);
 
             this.event = event;
+
+            this.setBackgroundColor(0xffffffff);
         }
 
         public Event getEvent()

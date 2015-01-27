@@ -99,27 +99,27 @@ public class WeekScheduleActivity extends ActionBarActivity
         InvalidateTimer task = new InvalidateTimer(this);
         timer.schedule(task, 60 * 1000, 60 * 1000);
 
-//        WeekScheduleView weekScheduleView = (WeekScheduleView) findViewById(R.id.weekSchedule);
-//        weekScheduleView.setAdapter(weekSchedule);
-//
-//        weekScheduleView.setOnItemClickListener(new OnItemClickListener()
-//        {
-//            public void onItemClick(AdapterView listview, View view, int pos, long id)
-//            {
-//                try
-//                {
-//                    WeekSchedule org = (WeekSchedule) listview.getAdapter().getItem(pos);
-//                    Intent intent = new Intent(self, LocationsActivity.class);
-//                    intent.putExtra("weekScheduleId", org.id);
-//                    intent.putExtra("weekScheduleName", org.name);
-//                    startActivity(intent);
-//                }
-//                catch(Exception e)
-//                {
-//                    Log.e("Xedroid", "Error: " + e.getMessage());
-//                }
-//            }
-//        });
+        weekScheduleView.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view)
+            {
+                Log.d("Xedroid", ((WeekScheduleView.EventView) view).getEvent().getDescription());
+
+                // try
+                // {
+                //     Event event = ((WeekScheduleView.EventView) view).getEvent();
+                //     Intent intent = new Intent(self, DayScheduleActivity.class);
+                //     intent.putExtra("attendeeId", attendee.getId());
+                //     intent.putExtra("day", event.getDay());
+                //     intent.putExtra("eventId", event.getId());
+                //     startActivity(intent);
+                // }
+                // catch(Exception e)
+                // {
+                //     Log.e("Xedroid", "Error: " + e.getMessage());
+                // }
+            }
+        });
     }
 
     public void refresh(final boolean force)
