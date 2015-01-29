@@ -68,14 +68,14 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:paddingBottom="72dp"
                 android:weightSum="6">
 
             <!-- Hour label column -->
             <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:paddingBottom="32dp" />
             <!-- End hour label column -->
 
             <RelativeLayout

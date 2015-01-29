@@ -3,6 +3,7 @@ package com.novaember.xedroid;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -14,13 +15,16 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AbsoluteLayout;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
-public class WeekScheduleView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener
+public class WeekScheduleView extends RelativeLayout implements View.OnClickListener, View.OnLongClickListener
 {
     private float startHour = 8.5f;
     private float endHour = 16.f;
@@ -31,8 +35,11 @@ public class WeekScheduleView extends LinearLayout implements View.OnClickListen
 
     private boolean currentWeek = false;
 
+    private final Context context;
+    private final WeekScheduleView self;
+
     private ArrayList<EventView> events;
-    private ArrayList<AbsoluteLayout> dayColumns;
+    private ArrayList<ViewGroup> dayColumns;
 
     private OnClickListener onClickListener;
     private OnLongClickListener onLongClickListener;
@@ -43,36 +50,60 @@ public class WeekScheduleView extends LinearLayout implements View.OnClickListen
 
         inflate(context, R.layout.weekscheduleview, this);
 
+        this.context = context;
+        this.self = this;
+
         events = new ArrayList<EventView>();
+        dayColumns = new ArrayList<ViewGroup>();
+
+        for (int i = 0; i < 6; i++)
+        {
+            dayColumns.add(
+                    ((ViewGroup)
+                    ((ViewGroup)
+                        findViewById(R.id.weekschedule_daycolumns))
+                        .getChildAt(i)));
+
+            Log.d("Xedroid", i + ": " + dayColumns.get(i));
+        }
+
+        for (int h = (int) Math.ceil(startHour); h <= endHour; h++)
+        {
+            View marker = inflate(context, R.layout.weekschedule_hourmarker, null);
+            ((TextView) marker.findViewById(R.id.weekschedule_hourmarker_label)).setText(h + "h");
+            LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            params.topMargin = (int) getPx(((h - startHour) * hourHeight));
+            marker.setLayoutParams(params);
+            dayColumns.get(0).addView(marker);
+        }
     }
 
-    public void addEvent(Event event)
+    public void addEvent(final Event event)
     {
-        EventView eventView = new EventView(this.getContext(), null, event);
+        ((Activity) context).runOnUiThread(new Runnable() { public void run()
+        {
+            EventView eventView = new EventView(context, null, event);
 
-        events.add(eventView);
+            events.add(eventView);
+            dayColumns.get(event.getDay()).addView(eventView);
 
-        ((ViewGroup)
-        ((ViewGroup) findViewById(R.id.weekschedule_daycolumns))
-            .getChildAt(event.getDay()))
-            .addView(eventView);
+            float height = getPx((event.getEnd().getFloat() - event.getStart().getFloat()) * hourHeight + 1);
+            float y = getPx((event.getStart().getFloat() - startHour) * hourHeight);
 
-        float height = getPx((event.getEnd().getFloat() - event.getStart().getFloat()) * hourHeight + 1);
-        float y = getPx((event.getStart().getFloat() - startHour) * hourHeight);
+            LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (int) height);
+            params.topMargin = (int) y;
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, (int) height);
-        params.topMargin = (int) y;
+            ((TextView) eventView.findViewById(R.id.weekschedule_event_primary_text)).setText(event.getAbbreviation());
 
-        ((TextView) eventView.findViewById(R.id.weekschedule_event_primary_text)).setText(event.getDescription());
+            if (event.getFacilities().size() >= 1)
+                ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(event.getFacilities().get(0).getName());
 
-        if (event.getFacilities().size() >= 1)
-            ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(event.getFacilities().get(0).getName());
+            eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
-        eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
-
-        eventView.setLayoutParams(params);
-        eventView.setOnClickListener(this);
-        eventView.setOnLongClickListener(this);
+            eventView.setLayoutParams(params);
+            eventView.setOnClickListener(self);
+            eventView.setOnLongClickListener(self);
+        } });
     }
 
     public void clear()
