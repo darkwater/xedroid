@@ -95,8 +95,11 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
             ((TextView) eventView.findViewById(R.id.weekschedule_event_primary_text)).setText(event.getAbbreviation());
 
-            if (event.getFacilities().size() >= 1)
-                ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(event.getFacilities().get(0).getName());
+            String secondaryText = "";
+            for (int i = 0; i < event.getFacilities().size(); i++)
+                secondaryText += event.getFacilities().get(i).getName() + "\n";
+
+            ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(secondaryText);
 
             eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
@@ -141,7 +144,7 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
     public void setOnLongClickListener(View.OnLongClickListener onLongClickListener)
     {
-        this.onLongClickListener = this.onLongClickListener;
+        this.onLongClickListener = onLongClickListener;
     }
 
     public void onClick(View view)
