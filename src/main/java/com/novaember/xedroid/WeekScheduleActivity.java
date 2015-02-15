@@ -61,6 +61,8 @@ public class WeekScheduleActivity extends ActionBarActivity
 
         Intent intent = getIntent();
         attendee = new Attendee(intent.getIntExtra("attendeeId", 0));
+        year = intent.getIntExtra("year", 1970);
+        week = intent.getIntExtra("week", 1);
 
         ActionBar bar = getSupportActionBar();
         bar.setDisplayShowTitleEnabled(false);
@@ -90,9 +92,12 @@ public class WeekScheduleActivity extends ActionBarActivity
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         bar.setListNavigationCallbacks(weekAdapter, weekNavigationListener);
 
-        Calendar calendar = Calendar.getInstance();
-        year = calendar.get(Calendar.YEAR);
-        week = calendar.get(Calendar.WEEK_OF_YEAR);
+        if (year == 1970 && week == 1)
+        {
+            Calendar calendar = Calendar.getInstance();
+            year = calendar.get(Calendar.YEAR);
+            week = calendar.get(Calendar.WEEK_OF_YEAR);
+        }
         bar.setSelectedNavigationItem(weekAdapter.selectWeek(year, week));
 
         Timer timer = new Timer();
@@ -105,19 +110,21 @@ public class WeekScheduleActivity extends ActionBarActivity
             {
                 Log.d("Xedroid", ((WeekScheduleView.EventView) view).getEvent().getDescription());
 
-                // try
-                // {
-                //     Event event = ((WeekScheduleView.EventView) view).getEvent();
-                //     Intent intent = new Intent(self, DayScheduleActivity.class);
-                //     intent.putExtra("attendeeId", attendee.getId());
-                //     intent.putExtra("day", event.getDay());
-                //     intent.putExtra("eventId", event.getId());
-                //     startActivity(intent);
-                // }
-                // catch(Exception e)
-                // {
-                //     Log.e("Xedroid", "Error: " + e.getMessage());
-                // }
+                try
+                {
+                    Event event = ((WeekScheduleView.EventView) view).getEvent();
+                    Intent intent = new Intent(self, DayScheduleActivity.class);
+                    intent.putExtra("attendeeId", attendee.getId());
+                    intent.putExtra("year", year);
+                    intent.putExtra("week", week);
+                    intent.putExtra("day", event.getDay());
+                    intent.putExtra("eventId", event.getId());
+                    startActivity(intent);
+                }
+                catch(Exception e)
+                {
+                    Log.e("Xedroid", "Error: " + e.getMessage());
+                }
             }
         });
     }

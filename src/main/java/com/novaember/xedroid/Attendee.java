@@ -131,6 +131,11 @@ public class Attendee implements Comparable<Attendee>
         return type;
     }
 
+    public String toString()
+    {
+        return getName();
+    }
+
     public int getWeekScheduleAge(int year, int week)
     {
         int output = 0;
@@ -183,6 +188,27 @@ public class Attendee implements Comparable<Attendee>
         Cursor cursor = db.query("attendee_events_view",
                 new String[]{ "event", "year", "week", "day", "start", "end", "description" }, "attendee = ? AND year = ? AND week = ?",
                 new String[]{ String.valueOf(id), String.valueOf(year), String.valueOf(week) }, null, null, "event", null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
+        {
+            output.add(new Event(cursor));
+            cursor.moveToNext();
+        }
+
+        db.close();
+
+        return output;
+    }
+
+    public ArrayList<Event> getEvents(int year, int week, int day)
+    {
+        ArrayList<Event> output = new ArrayList<Event>();
+
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("attendee_events_view",
+                new String[]{ "event", "year", "week", "day", "start", "end", "description" }, "attendee = ? AND year = ? AND week = ? AND day = ?",
+                new String[]{ String.valueOf(id), String.valueOf(year), String.valueOf(week), String.valueOf(day) }, null, null, "event", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())

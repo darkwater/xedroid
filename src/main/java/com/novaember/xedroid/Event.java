@@ -199,8 +199,8 @@ public class Event implements Comparable<Event>
         values.put("week",        week);
         values.put("day",         day);
         values.put("description", description);
-        values.put("start",       start.getString());
-        values.put("end",         end.getString());
+        values.put("start",       start.toString());
+        values.put("end",         end.toString());
 
         this.id = (int) db.insertWithOnConflict("events", null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
@@ -243,19 +243,19 @@ public class Event implements Comparable<Event>
             return minute;
         }
 
-        public float getFloat()
+        public float toFloat()
         {
             return hour + (float) minute / 60.f;
         }
 
-        public String getString()
+        public String toString()
         {
-            return hour + ":" + minute;
+            return hour + ":" + (minute < 10 ? "0" : "") + minute;
         }
 
         public int compareTo(Time t)
         {
-            return java.lang.Float.compare(getFloat(), t.getFloat());
+            return java.lang.Float.compare(toFloat(), t.toFloat());
         }
     }
 }

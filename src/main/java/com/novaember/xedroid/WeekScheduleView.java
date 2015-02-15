@@ -87,8 +87,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
             events.add(eventView);
             dayColumns.get(event.getDay()).addView(eventView);
 
-            float height = getPx((event.getEnd().getFloat() - event.getStart().getFloat()) * hourHeight + 1);
-            float y = getPx((event.getStart().getFloat() - startHour) * hourHeight);
+            float height = getPx((event.getEnd().toFloat() - event.getStart().toFloat()) * hourHeight + 1);
+            float y = getPx((event.getStart().toFloat() - startHour) * hourHeight);
 
             LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (int) height);
             params.topMargin = (int) y;

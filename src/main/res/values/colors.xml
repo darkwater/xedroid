@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="xedroid_red">#e82802</color>
-    <color name="xedroid_darkRed">#681201</color>
+    <color name="colorPrimary">#e82802</color>
+    <color name="colorPrimaryDark">#681201</color>
+    <color name="colorAccent">#00afff</color>
 
     <color name="weekschedule_background">#e0e0e0</color>
     <color name="weekschedule_lines">#a0a0a0</color>
+
+    <color name="dayschedule_break">#e0e0e0</color>
 
 </resources>

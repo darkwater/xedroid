@@ -13,9 +13,15 @@ buildscript
 
 apply plugin: "android"
 
+repositories
+{
+    mavenCentral()
+}
+
 dependencies
 {
     compile "com.android.support:appcompat-v7:21.0.+"
+    compile 'it.neokree:MaterialTabs:0.11'
 }
 
 android

@@ -52,6 +52,15 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="com.novaember.xedroid.AttendeesActivity" />
         </activity>
+
+        <activity
+                android:name=".DayScheduleActivity"
+                android:label="replace meee"
+                android:parentActivityName=".DayScheduleActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.WeekScheduleActivity" />
+        </activity>
     </application>
 
 </manifest>

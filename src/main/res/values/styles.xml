@@ -16,8 +16,8 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
 
-        <item name="colorPrimary">@color/xedroid_red</item>
-        <item name="colorPrimaryDark">@color/xedroid_darkRed</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 
         <item name="android:actionBarStyle">@style/XedroidActionBar</item>
         <item name="actionBarStyle">@style/XedroidActionBar</item>
@@ -26,9 +26,8 @@
 
     <style name="XedroidActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
 
-        <item name="android:background">@color/xedroid_red</item>
-
-        <item name="background">@color/xedroid_red</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="background">@color/colorPrimary</item>
 
     </style>
 
