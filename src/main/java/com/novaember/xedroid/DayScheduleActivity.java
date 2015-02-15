@@ -15,11 +15,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -189,6 +192,8 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
         private int week;
         private int day;
 
+        private DayScheduleAdapter dayScheduleAdapter;
+
         static DayScheduleFragment newInstance(int attendeeId, int year, int week, int day)
         {
             DayScheduleFragment f = new DayScheduleFragment();
@@ -212,12 +217,15 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
             year = getArguments() != null ? getArguments().getInt("year") : 1970;
             week = getArguments() != null ? getArguments().getInt("week") : 1;
             day = getArguments() != null ? getArguments().getInt("day") : 1;
+
+            dayScheduleAdapter = new DayScheduleAdapter(attendee, year, week, day, getActivity());
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.inflate(R.layout.fragment_dayschedule, container, false);
+            registerForContextMenu(view.findViewById(android.R.id.list));
             return view;
         }
 
@@ -225,12 +233,52 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
         public void onActivityCreated(Bundle savedInstanceState)
         {
             super.onActivityCreated(savedInstanceState);
-            setListAdapter(new DayScheduleAdapter(attendee, year, week, day, getActivity()));
+            setListAdapter(dayScheduleAdapter);
         }
 
         @Override
         public void onListItemClick(ListView listView, View view, int position, long id)
         {
+            if (dayScheduleAdapter.getItemViewType(position) != DayScheduleAdapter.TYPE_EVENT) return;
+
+            listView.showContextMenuForChild(view);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo)
+        {
+            super.onCreateContextMenu(menu, view, menuInfo);
+
+            menu.setHeaderTitle("Go to...");
+
+            AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+            Event event = dayScheduleAdapter.getItem(info.position);
+
+            int i = 0;
+            for (Attendee attendee : event.getAttendees())
+            {
+                menu.add(0, i++, 0, "Schedule for " + attendee.getName());
+            }
+        }
+
+        @Override
+        public boolean onContextItemSelected(MenuItem item)
+        {
+            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+
+            Event event = dayScheduleAdapter.getItem(info.position);
+            if (event == null) return super.onContextItemSelected(item);
+
+            Attendee attendee = event.getAttendees().get(item.getItemId());
+            if (attendee == null) return super.onContextItemSelected(item);
+
+            Intent intent = new Intent(getActivity(), WeekScheduleActivity.class);
+            intent.putExtra("attendeeId", attendee.getId());
+            intent.putExtra("year", year);
+            intent.putExtra("week", week);
+            startActivity(intent);
+
+            return true;
         }
     }
 
@@ -241,9 +289,9 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
         private static LayoutInflater inflater = null;
         private Attendee attendee = null;
 
-        private static final int TYPE_EVENT = 0;
-        private static final int TYPE_BREAK = 1;
-        private static final int TYPE_MAX_COUNT = 2;
+        public static final int TYPE_EVENT = 0;
+        public static final int TYPE_BREAK = 1;
+        public static final int TYPE_MAX_COUNT = 2;
 
         public DayScheduleAdapter(Attendee attendee, int year, int week, int day, Activity activity)
         {
@@ -280,6 +328,11 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
             return data.size();
         }
 
+        public int getViewTypeCount()
+        {
+            return TYPE_MAX_COUNT;
+        }
+
         public int getItemViewType(int position)
         {
             return data.get(position) == null ? TYPE_BREAK : TYPE_EVENT;
@@ -299,6 +352,8 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
 
             if (convertView == null)
                 convertView = (View) inflater.inflate(R.layout.dayschedule_event_item, null);
+
+            convertView.setTag(event);
 
             ((TextView) convertView.findViewById(R.id.dayschedule_event_description)).setText(event.getDescription());
             ((TextView) convertView.findViewById(R.id.dayschedule_event_staffs)).setText(TextUtils.join(", ", event.getStaffs()));
