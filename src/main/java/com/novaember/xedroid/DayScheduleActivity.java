@@ -249,7 +249,7 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
         {
             super.onCreateContextMenu(menu, view, menuInfo);
 
-            menu.setHeaderTitle("Go to...");
+            menu.setHeaderTitle("Ga naar rooster van...");
 
             AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
             Event event = dayScheduleAdapter.getItem(info.position);
@@ -257,7 +257,7 @@ public class DayScheduleActivity extends ActionBarActivity implements MaterialTa
             int i = 0;
             for (Attendee attendee : event.getAttendees())
             {
-                menu.add(0, i++, 0, "Schedule for " + attendee.getName());
+                menu.add(0, i++, 0, attendee.getType().getName() + ": " + attendee.getName());
             }
         }
 

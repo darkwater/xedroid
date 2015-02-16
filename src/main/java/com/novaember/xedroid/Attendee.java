@@ -39,6 +39,17 @@ public class Attendee implements Comparable<Attendee>
                 default: return Type.CLASS;
             }
         }
+
+        public String getName()
+        {
+            switch (this)
+            {
+                case CLASS:    return "Klas";
+                case STAFF:    return "Medewerker";
+                case FACILITY: return "Lokaal";
+                default:       return "idk";
+            }
+        }
     }
 
     public Attendee(int id)
