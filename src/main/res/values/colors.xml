@@ -2,7 +2,7 @@
 <resources>
 
     <color name="colorPrimary">#e82802</color>
-    <color name="colorPrimaryDark">#681201</color>
+    <color name="colorPrimaryDark">#b01e02</color>
     <color name="colorAccent">#00afff</color>
 
     <color name="weekschedule_background">#e0e0e0</color>
