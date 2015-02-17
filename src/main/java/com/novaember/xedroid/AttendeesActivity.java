@@ -154,6 +154,8 @@ public class AttendeesActivity extends ActionBarActivity
                 {
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
+
+                attendees.getFilter().filter(searchInput.getText());
             }
         }.execute(progressBar);
     }
