@@ -11,23 +11,15 @@ public class Location implements Comparable<Location>
 {
     private int id;
     private String name;
-    private int organisation;
+    private Organisation organisation;
     private String[] weeks;
 
     public Location(int id)
     {
         this.id = id;
-
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "id = " + this.id, null, null, null, "id", null);
-
-        cursor.moveToFirst();
-        this.name = cursor.getString(1);
-        this.organisation = cursor.getInt(2);
-        this.weeks = cursor.getString(3).split(",");
     }
 
-    public Location(int id, String name, int organisation, String[] weeks)
+    public Location(int id, String name, Organisation organisation, String[] weeks)
     {
         this.id = id;
         this.name = name;
@@ -39,8 +31,23 @@ public class Location implements Comparable<Location>
     {
         this.id = cursor.getInt(0);
         this.name = cursor.getString(1);
-        this.organisation = cursor.getInt(2);
+        this.organisation = new Organisation(cursor.getInt(2));
         this.weeks = cursor.getString(3).split(",");
+    }
+
+    public boolean populate()
+    {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "id = " + this.id, null, null, null, "id", null);
+
+        if (cursor == null || cursor.getCount() == 0) return false;
+
+        cursor.moveToFirst();
+        name = cursor.getString(1);
+        organisation = new Organisation(cursor.getInt(2));
+        weeks = cursor.getString(3).split(",");
+
+        return true;
     }
 
     public int getId()
@@ -50,17 +57,28 @@ public class Location implements Comparable<Location>
 
     public String getName()
     {
+        if (name == null) populate();
+
         return name;
     }
 
     public Organisation getOrganisation()
     {
-        return new Organisation(this.organisation);
+        if (organisation == null) populate();
+
+        return organisation;
     }
 
     public String[] getWeeks()
     {
+        if (weeks == null) populate();
+
         return weeks;
+    }
+
+    public String toString()
+    {
+        return getName();
     }
 
     @Override
@@ -74,7 +92,7 @@ public class Location implements Comparable<Location>
         ContentValues values = new ContentValues();
         values.put("id", id);
         values.put("name", name);
-        values.put("organisation", organisation);
+        values.put("organisation", organisation.getId());
         values.put("weeks", TextUtils.join(",", weeks));
 
         db.insertWithOnConflict("locations", null, values, SQLiteDatabase.CONFLICT_REPLACE);

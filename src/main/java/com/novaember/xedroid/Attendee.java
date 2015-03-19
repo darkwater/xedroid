@@ -11,7 +11,7 @@ public class Attendee implements Comparable<Attendee>
 {
     private int id;
     private String name;
-    private int location;
+    private Location location;
     private Type type;
 
     public enum Type
@@ -65,11 +65,11 @@ public class Attendee implements Comparable<Attendee>
 
         cursor.moveToFirst();
         this.id = cursor.getInt(0);
-        this.location = cursor.getInt(2);
+        this.location = new Location(cursor.getInt(2));
         this.type = Type.getById(cursor.getInt(3));
     }
 
-    public Attendee(int id, String name, int location, int type)
+    public Attendee(int id, String name, Location location, int type)
     {
         this.id = id;
         this.name = name;
@@ -89,7 +89,7 @@ public class Attendee implements Comparable<Attendee>
     {
         this.id = cursor.getInt(0);
         this.name = cursor.getString(1);
-        this.location = cursor.getInt(2);
+        this.location = new Location(cursor.getInt(2));
 
         try
         {
@@ -110,7 +110,7 @@ public class Attendee implements Comparable<Attendee>
 
         cursor.moveToFirst();
         this.name = cursor.getString(1);
-        this.location = cursor.getInt(2);
+        this.location = new Location(cursor.getInt(2));
         this.type = Type.getById(cursor.getInt(3));
 
         return true;
@@ -130,9 +130,9 @@ public class Attendee implements Comparable<Attendee>
 
     public Location getLocation()
     {
-        if (location == 0) populate();
+        if (location == null) populate();
 
-        return new Location(location);
+        return location;
     }
 
     public Type getType()
@@ -178,7 +178,7 @@ public class Attendee implements Comparable<Attendee>
         ContentValues values = new ContentValues();
         values.put("id", this.id);
         values.put("name", this.name);
-        values.put("location", this.location);
+        values.put("location", this.location.getId());
         values.put("type", this.type.id);
 
         db.insertWithOnConflict("attendees", null, values, SQLiteDatabase.CONFLICT_REPLACE);

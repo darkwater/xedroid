@@ -140,7 +140,7 @@ public class AttendeesActivity extends ActionBarActivity
                     // TODO: Investigate (Lollipop needs a looper for whatever reason)
                 }
 
-                Xedule.updateAttendees(location.getId(), pBar[0]);
+//                Xedule.updateAttendees(location.getId(), pBar[0]);
                 return location.getAttendees();
             }
 
@@ -201,9 +201,9 @@ public class AttendeesActivity extends ActionBarActivity
             {
                 // This activity is part of this app's task, so simply
                 // navigate up to the logical parent activity.
-                Intent intent = new Intent(self, LocationsActivity.class);
-                intent.putExtra("organisationId", location.getOrganisation().getId());
-                startActivity(intent);
+//                Intent intent = new Intent(self, LocationsActivity.class);
+//                intent.putExtra("organisationId", location.getOrganisation().getId());
+//                startActivity(intent);
             }
             return true;
         }

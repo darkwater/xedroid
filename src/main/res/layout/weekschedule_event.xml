@@ -6,6 +6,12 @@
         android:background="?android:attr/listChoiceBackgroundIndicator">
 
     <View
+            android:id="@+id/weekschedule_event_color"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#ffaf00" />
+
+    <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/weekschedule_lines" />
@@ -15,12 +21,6 @@
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
             android:background="@color/weekschedule_lines" />
-
-    <View
-            android:id="@+id/weekschedule_event_color"
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="#ffaf00" />
 
     <TextView
             android:id="@+id/weekschedule_event_primary_text"

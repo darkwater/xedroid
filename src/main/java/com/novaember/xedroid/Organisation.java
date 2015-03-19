@@ -14,12 +14,6 @@ public class Organisation implements Comparable<Organisation>
     public Organisation(int id)
     {
         this.id = id;
-
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query("organisations", new String[]{ "id", "name" }, "id = " + this.id, null, null, null, "id", null);
-
-        cursor.moveToFirst();
-        this.name = cursor.getString(1);
     }
 
     public Organisation(int id, String name)
@@ -30,10 +24,22 @@ public class Organisation implements Comparable<Organisation>
 
     public Organisation(Cursor cursor)
     {
-        this.id = cursor.getInt(0);
-        this.name = cursor.getString(1);
+        id = cursor.getInt(0);
+        name = cursor.getString(1);
     }
 
+    public boolean populate()
+    {
+        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        Cursor cursor = db.query("organisations", new String[]{ "id", "name" }, "id = " + id, null, null, null, "id", null);
+
+        if (cursor == null || cursor.getCount() == 0) return false;
+
+        cursor.moveToFirst();
+        name = cursor.getString(1);
+
+        return true;
+    }
     public int getId()
     {
         return id;
@@ -41,22 +47,27 @@ public class Organisation implements Comparable<Organisation>
 
     public String getName()
     {
-        if (name != null) return name;
+        if (name == null) populate();
 
-        return "???";
+        return name;
+    }
+
+    public String toString()
+    {
+        return getName();
     }
 
     @Override
     public int compareTo(Organisation org)
     {
-        return name.compareTo(org.name);
+        return getName().compareTo(org.getName());
     }
 
     public void save(SQLiteDatabase db)
     {
         ContentValues values = new ContentValues();
-        values.put("id", this.id);
-        values.put("name", this.name);
+        values.put("id", id);
+        values.put("name", name);
 
         db.insertWithOnConflict("organisations", null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -92,7 +103,7 @@ public class Organisation implements Comparable<Organisation>
         ArrayList<Location> output = new ArrayList<Location>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "organisation = " + this.id, null, null, null, "name", null);
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "organisation = " + id, null, null, null, "name", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())

@@ -98,14 +98,14 @@ public class Xedule
         }
     }
 
-    public static void updateLocations(int organisation)
+    public static void updateLocations(Organisation organisation)
     {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
         db.beginTransaction();
 
         try
         {
-            JSONArray locationsJSONArray = Xedule.getArray("locations." + organisation + ".json");
+            JSONArray locationsJSONArray = Xedule.getArray("locations." + organisation.getId() + ".json");
 
             for (int i = 0; i < locationsJSONArray.length(); i++)
             {
@@ -125,7 +125,7 @@ public class Xedule
         }
         catch(JSONException e)
         {
-            Log.e("Xedule", "Couldn't update locations for organisation #" + organisation, e);
+            Log.e("Xedule", "Couldn't update locations for organisation " + organisation, e);
         }
         finally
         {
@@ -133,14 +133,14 @@ public class Xedule
         }
     }
 
-    public static void updateAttendees(int location, ProgressBar progressBar)
+    public static void updateAttendees(Location location, ProgressBar progressBar)
     {
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
         db.beginTransaction();
 
         try
         {
-            JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location + ".json");
+            JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location.getId() + ".json");
 
             if (progressBar != null)
             {
@@ -161,7 +161,7 @@ public class Xedule
         }
         catch(JSONException e)
         {
-            Log.e("Xedule", "Couldn't update attendees for location #" + location, e);
+            Log.e("Xedule", "Couldn't update attendees for location " + location, e);
         }
         finally
         {

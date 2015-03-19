@@ -157,7 +157,7 @@ public class WeekScheduleActivity extends ActionBarActivity
                 if (force || attendee.getWeekScheduleAge(year, week) == 0)
                 {
                     Xedule.updateEvents(attendee.getId(), year, week);
-                    Xedule.updateLocations(attendee.getLocation().getOrganisation().getId());
+                    Xedule.updateLocations(attendee.getLocation().getOrganisation());
                     weekScheduleView.addFromArrayList(attendee.getEvents(year, week), progressBar);
                 }
                 else
