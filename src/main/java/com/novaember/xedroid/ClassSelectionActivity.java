@@ -1,14 +1,14 @@
 package com.novaember.xedroid;
 
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,11 +27,18 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
                                                                          LocationsFragment.OnLocationSelectedListener,
                                                                          AttendeesFragment.OnAttendeeSelectedListener
 {
+    private boolean myAttendeeDefined;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classselection);
+
+        // Only show up button if we have a class
+        SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+        myAttendeeDefined = sharedPref.getInt(getString(R.string.preference_myschedule_key), 0) != 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(myAttendeeDefined);
 
         if (savedInstanceState == null)
         {
@@ -60,6 +67,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
     {
         ActionBar bar = getSupportActionBar();
         bar.setTitle(organisation.getName());
+        bar.setDisplayHomeAsUpEnabled(true);
 
         LocationsFragment locationsFragment = null; //(LocationsFragment) getSupportFragmentManager().findFragmentById(R.id.locations_fragment);
 
@@ -84,7 +92,9 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
 
     public void onLocationSelected(Location location)
     {
-        getSupportActionBar().setTitle(location.getName());
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle(location.getName());
+        bar.setDisplayHomeAsUpEnabled(true);
 
         AttendeesFragment attendeesFragment = null; //(AttendeesFragment) getSupportFragmentManager().findFragmentById(R.id.attendees_fragment);
 
@@ -112,8 +122,10 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
         try
         {
             Intent intent = new Intent(this, WeekScheduleActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("attendeeId", attendee.getId());
             startActivity(intent);
+            finish();
         }
         catch(Exception e)
         {
@@ -132,11 +144,15 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.classselection_fragment);
         if (fragment instanceof LocationsFragment)
         {
-            getSupportActionBar().setTitle(((LocationsFragment) fragment).getOrganisation().getName());
+            ActionBar bar = getSupportActionBar();
+            bar.setTitle(((LocationsFragment) fragment).getOrganisation().getName());
+            bar.setDisplayHomeAsUpEnabled(true);
         }
         else if (fragment instanceof OrganisationsFragment)
         {
-            getSupportActionBar().setTitle(R.string.app_name);
+            ActionBar bar = getSupportActionBar();
+            bar.setTitle(R.string.app_name);
+            bar.setDisplayHomeAsUpEnabled(myAttendeeDefined);
         }
     }
 
@@ -155,6 +171,19 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
         // handle clicks on the Home/Up button, so long as you specify a parent
         // activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == android.R.id.home)
+        {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.classselection_fragment);
+            if (fragment instanceof OrganisationsFragment)
+            {
+                Intent intent = new Intent(this, WeekScheduleActivity.class);
+                startActivity(intent);
+            }
+            else onBackPressed();
+
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }

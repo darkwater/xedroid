@@ -78,7 +78,9 @@ public class WeekScheduleActivity extends ActionBarActivity
             try
             {
                 Intent newIntent = new Intent(this, ClassSelectionActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(newIntent);
+                finish();
             }
             catch(Exception e)
             {
