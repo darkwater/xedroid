@@ -1,5 +1,6 @@
 package com.novaember.xedroid;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.app.Activity;
@@ -64,7 +65,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
 
         if (locationsFragment != null) // Multi-pane view
         {
-            locationsFragment.updateOrganisation(organisation);
+            locationsFragment.setOrganisation(organisation);
         }
         else // Single-pane view
         {
@@ -83,8 +84,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
 
     public void onLocationSelected(Location location)
     {
-        ActionBar bar = getSupportActionBar();
-        bar.setTitle(location.getName());
+        getSupportActionBar().setTitle(location.getName());
 
         AttendeesFragment attendeesFragment = null; //(AttendeesFragment) getSupportFragmentManager().findFragmentById(R.id.attendees_fragment);
 
@@ -118,6 +118,25 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
         catch(Exception e)
         {
             Log.e("Xedroid", "Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+
+        // Stop if we're in a multi-pane layout
+        // if (getSupportFragmentManager().findFragmentById(R.id.organisations_fragment) != null) return;
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.classselection_fragment);
+        if (fragment instanceof LocationsFragment)
+        {
+            getSupportActionBar().setTitle(((LocationsFragment) fragment).getOrganisation().getName());
+        }
+        else if (fragment instanceof OrganisationsFragment)
+        {
+            getSupportActionBar().setTitle(R.string.app_name);
         }
     }
 

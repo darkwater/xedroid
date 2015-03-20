@@ -32,9 +32,14 @@ public class LocationsFragment extends ListFragment
         return inflater.inflate(R.layout.locations_fragment, container, false);
     }
 
-    public void updateOrganisation(Organisation organisation)
+    public void setOrganisation(Organisation organisation)
     {
         this.organisation = organisation;
+    }
+
+    public Organisation getOrganisation()
+    {
+        return organisation;
     }
 
     @Override

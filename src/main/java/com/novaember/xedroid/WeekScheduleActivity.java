@@ -12,10 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +20,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,9 +67,29 @@ public class WeekScheduleActivity extends ActionBarActivity
         year = intent.getIntExtra("year", 1970);
         week = intent.getIntExtra("week", 1);
 
+        if (attendee.getId() == 0)
+        {
+            SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+            attendee = new Attendee(sharedPref.getInt(getString(R.string.preference_myschedule_key), 0));
+        }
+
+        if (attendee.getId() == 0)
+        {
+            try
+            {
+                Intent newIntent = new Intent(this, ClassSelectionActivity.class);
+                startActivity(newIntent);
+            }
+            catch(Exception e)
+            {
+                Log.e("Xedroid", "Error: " + e.getMessage());
+            }
+
+            return;
+        }
+
         ActionBar bar = getSupportActionBar();
         bar.setDisplayShowTitleEnabled(false);
-        bar.setDisplayHomeAsUpEnabled(true);
 
         weekScheduleView = (WeekScheduleView) findViewById(R.id.weekschedule);
         progressBar = (ProgressBar) findViewById(R.id.weekschedule_progressbar);

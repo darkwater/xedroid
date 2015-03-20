@@ -17,9 +17,10 @@
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name"
             android:theme="@style/AppTheme" >
+
         <activity
-                android:name=".ClassSelectionActivity"
-                android:label="@string/app_name" >
+                android:name=".WeekScheduleActivity"
+                android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,22 +29,22 @@
         </activity>
 
         <activity
-                android:name=".WeekScheduleActivity"
-                android:label="replace meee"
-                android:parentActivityName=".WeekScheduleActivity" >
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.novaember.xedroid.AttendeesActivity" />
-        </activity>
-
-        <activity
                 android:name=".DayScheduleActivity"
-                android:label="replace meee"
+                android:label="@string/app_name"
                 android:parentActivityName=".DayScheduleActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="com.novaember.xedroid.WeekScheduleActivity" />
         </activity>
+
+        <activity
+                android:name=".ClassSelectionActivity"
+                android:label="@string/app_name" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.WeekScheduleActivity" />
+        </activity>
+
     </application>
 
 </manifest>

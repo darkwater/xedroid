@@ -125,7 +125,7 @@ public class Xedule
         }
         catch(JSONException e)
         {
-            Log.e("Xedule", "Couldn't update locations for organisation " + organisation, e);
+            Log.e("Xedule", "Couldn't update locations for organisation #" + organisation.getId(), e);
         }
         finally
         {
@@ -161,7 +161,7 @@ public class Xedule
         }
         catch(JSONException e)
         {
-            Log.e("Xedule", "Couldn't update attendees for location " + location, e);
+            Log.e("Xedule", "Couldn't update attendees for location #" + location.getId(), e);
         }
         finally
         {

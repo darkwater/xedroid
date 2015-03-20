@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Collections;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v4.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,13 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.lang.ClassCastException;
 
 public class AttendeesFragment extends ListFragment
 {
     private OnAttendeeSelectedListener listener;
-    private ArrayAdapter<Attendee> adapter;
+    private AttendeesAdapter adapter;
     private Location location;
 
     public interface OnAttendeeSelectedListener
@@ -78,8 +80,7 @@ public class AttendeesFragment extends ListFragment
 
     public void populateList(List<Attendee> attendees)
     {
-        adapter = new ArrayAdapter<Attendee>(getActivity(), R.layout.attendee_item, R.id.attendee_name, attendees);
-
+        adapter = new AttendeesAdapter(getActivity(), R.layout.attendee_item, R.id.attendee_name, attendees);
         setListAdapter(adapter);
     }
 
@@ -87,5 +88,23 @@ public class AttendeesFragment extends ListFragment
     public void onListItemClick(ListView list, View view, int position, long id)
     {
         listener.onAttendeeSelected(adapter.getItem(position));
+    }
+
+    private class AttendeesAdapter extends ArrayAdapter<Attendee>
+    {
+        public AttendeesAdapter(Context context, int resource, int textViewResourceId, List<Attendee> objects)
+        {
+            super(context, resource, textViewResourceId, objects);
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            View view = super.getView(position, convertView, parent);
+
+            TextView type = (TextView) view.findViewById(R.id.attendee_type);
+            type.setText(getItem(position).getType().label);
+
+            return view;
+        }
     }
 }
