@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.GravityCompat;
@@ -35,6 +39,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SpinnerAdapter;
@@ -232,6 +237,13 @@ public class WeekScheduleActivity extends ActionBarActivity
         // activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        if (id == R.id.weekschedule_weekselect)
+        {
+            showDatePickerDialog();
+
+            return true;
+        }
+
         if (id == R.id.weekschedule_star)
         {
             SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
@@ -292,14 +304,43 @@ public class WeekScheduleActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void invalidateView()
+    public void showDatePickerDialog()
     {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                weekScheduleView.invalidate();
-            }
-        });
+        DialogFragment dialog = new DatePickerFragment();
+        dialog.show(getSupportFragmentManager(), "datePicker");
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
+            DatePicker picker = dialog.getDatePicker();
+
+            Calendar min = (Calendar) c.clone();
+            min.clear();
+            min.set(Calendar.YEAR, 2014);
+            min.set(Calendar.WEEK_OF_YEAR, 35);
+
+            Calendar max = (Calendar) c.clone();
+            max.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+
+            picker.setMinDate(min.getTimeInMillis());
+            picker.setMaxDate(max.getTimeInMillis());
+
+            return dialog;
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day)
+        {
+            Log.d("Xedroid", year + " - " + month + " - " + day);
+        }
     }
 }
 
@@ -441,6 +482,6 @@ final class InvalidateTimer extends TimerTask
     @Override
     public void run()
     {
-        activity.invalidateView();
+        // activity.invalidateView();
     }
 }
