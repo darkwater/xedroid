@@ -15,5 +15,6 @@
     <string name="attendee_type_facility">Faciliteit</string>
 
     <string name="weekschedule_star">Mijn rooster</string>
+    <string name="weekschedule_weekselect">Selecteer week</string>
 
 </resources>

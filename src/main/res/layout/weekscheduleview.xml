@@ -1,73 +1,73 @@
-<LinearLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/weekschedule_background">
-
-    <!-- Heading weekday names -->
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:weightSum="6">
-
-        <TextView
-                android:text=""
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-        <TextView
-                android:text="MA"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-        <TextView
-                android:text="DI"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-        <TextView
-                android:text="WO"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-        <TextView
-                android:text="DO"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-        <TextView
-                android:text="VR"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent" />
-
-    </LinearLayout>
-    <!-- End heading weekday names -->
+        android:background="@color/weekschedule_background"
+        android:fillViewport="true">
 
     <!-- Day columns -->
-    <ScrollView
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <!-- Heading weekday names -->
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:weightSum="6">
+
+            <TextView
+                    android:text=""
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            <TextView
+                    android:text="MA"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            <TextView
+                    android:text="DI"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            <TextView
+                    android:text="WO"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            <TextView
+                    android:text="DO"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            <TextView
+                    android:text="VR"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+        </LinearLayout>
+        <!-- End heading weekday names -->
 
         <LinearLayout
                 android:id="@+id/weekschedule_daycolumns"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="wrap_content"
                 android:weightSum="6">
 
             <!-- Hour label column -->
@@ -140,7 +140,7 @@
 
         </LinearLayout>
 
-    </ScrollView>
+    </LinearLayout>
     <!-- End day columns -->
 
-</LinearLayout>
+</ScrollView>

@@ -5,10 +5,10 @@
 
     <item
         android:id="@+id/weekschedule_weekselect"
-        android:icon="@drawable/ic_refresh_white_48dp"
+        android:icon="@drawable/ic_today_white_24dp"
         android:orderInCategory="20"
         app:showAsAction="always"
-        android:title="@string/weekschedule_star" />
+        android:title="@string/weekschedule_weekselect" />
 
     <item
         android:id="@+id/weekschedule_star"
@@ -19,9 +19,16 @@
 
     <item
         android:id="@+id/weekschedule_refresh"
-        android:icon="@drawable/ic_refresh_white_48dp"
+        android:icon="@drawable/ic_refresh_white_24dp"
         android:orderInCategory="80"
         app:showAsAction="ifRoom"
         android:title="@string/action_refresh" />
+
+    <item
+        android:id="@+id/weekschedule_settings"
+        android:icon="@drawable/ic_settings_white_24dp"
+        android:orderInCategory="90"
+        app:showAsAction="ifRoom"
+        android:title="@string/action_settings" />
 
 </menu>

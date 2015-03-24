@@ -55,6 +55,7 @@ public class WeekScheduleActivity extends ActionBarActivity
     private Attendee attendee;
     private int year;
     private int week;
+    private int weekday;
 
     private WeekAdapter weekAdapter;
     private boolean refreshing;
@@ -71,6 +72,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         attendee = new Attendee(intent.getIntExtra("attendeeId", 0));
         year = intent.getIntExtra("year", 1970);
         week = intent.getIntExtra("week", 1);
+        weekday = intent.getIntExtra("weekday", 1);
 
         if (attendee.getId() == 0)
         {
@@ -95,40 +97,22 @@ public class WeekScheduleActivity extends ActionBarActivity
             return;
         }
 
-        ActionBar bar = getSupportActionBar();
-        bar.setDisplayShowTitleEnabled(false);
-
         weekScheduleView = (WeekScheduleView) findViewById(R.id.weekschedule);
         progressBar = (ProgressBar) findViewById(R.id.weekschedule_progressbar);
-
-        weekAdapter = new WeekAdapter(this, attendee.getLocation().getWeeks());
-        weekAdapter.setTitle(attendee.getName());
-
-        ActionBar.OnNavigationListener weekNavigationListener = new ActionBar.OnNavigationListener()
-        {
-            @Override
-            public boolean onNavigationItemSelected(int position, long itemId)
-            {
-                Week weekObj = weekAdapter.getItem(position);
-                year = weekObj.year;
-                week = weekObj.week;
-
-                refresh(false);
-
-                return true;
-            }
-        };
-
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        bar.setListNavigationCallbacks(weekAdapter, weekNavigationListener);
 
         if (year == 1970 && week == 1)
         {
             Calendar calendar = Calendar.getInstance();
             year = calendar.get(Calendar.YEAR);
             week = calendar.get(Calendar.WEEK_OF_YEAR);
+            weekday = calendar.get(Calendar.DAY_OF_WEEK);
         }
-        bar.setSelectedNavigationItem(weekAdapter.selectWeek(year, week));
+
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle(attendee.getName());
+        bar.setSubtitle("Week " + week);
+
+        refresh(false);
 
         Timer timer = new Timer();
         InvalidateTimer task = new InvalidateTimer(this);
@@ -167,6 +151,9 @@ public class WeekScheduleActivity extends ActionBarActivity
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setIndeterminate(true);
         refreshing = true;
+
+        ActionBar bar = getSupportActionBar();
+        bar.setSubtitle("Week " + week);
 
         weekScheduleView.clear();
 
@@ -224,7 +211,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         boolean isMine = sharedPref.getInt("myschedule", 0) == attendee.getId();
         MenuItem item = menu.findItem(R.id.weekschedule_star);
         item.setChecked(isMine);
-        item.setIcon(isMine ? R.drawable.ic_star_white_48dp : R.drawable.ic_star_outline_white_48dp);
+        item.setIcon(isMine ? R.drawable.ic_star_white_24dp : R.drawable.ic_star_outline_white_24dp);
 
         return true;
     }
@@ -254,14 +241,14 @@ public class WeekScheduleActivity extends ActionBarActivity
                 editor.putInt("myschedule", attendee.getId());
 
                 item.setChecked(true);
-                item.setIcon(R.drawable.ic_star_white_48dp);
+                item.setIcon(R.drawable.ic_star_white_24dp);
             }
             else
             {
                 editor.putInt("myschedule", 0);
 
                 item.setChecked(false);
-                item.setIcon(R.drawable.ic_star_outline_white_48dp);
+                item.setIcon(R.drawable.ic_star_outline_white_24dp);
             }
 
             editor.commit();
@@ -310,36 +297,56 @@ public class WeekScheduleActivity extends ActionBarActivity
         dialog.show(getSupportFragmentManager(), "datePicker");
     }
 
-    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
+    public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
     {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
-            final Calendar c = Calendar.getInstance();
+            // Calculate default selected date
+            Calendar c = Calendar.getInstance();
+            c.clear();
+            c.set(Calendar.YEAR, year);
+            c.set(Calendar.WEEK_OF_YEAR, week);
+            c.set(Calendar.DAY_OF_WEEK, weekday);
+
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
 
+            // Get dialog's DatePicker
             DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
             DatePicker picker = dialog.getDatePicker();
 
+            // Calculate minimum date
             Calendar min = (Calendar) c.clone();
             min.clear();
             min.set(Calendar.YEAR, 2014);
             min.set(Calendar.WEEK_OF_YEAR, 35);
 
-            Calendar max = (Calendar) c.clone();
+            // Calculate maximum date
+            Calendar max = Calendar.getInstance();
             max.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 
+            // Configure picker
             picker.setMinDate(min.getTimeInMillis());
             picker.setMaxDate(max.getTimeInMillis());
 
             return dialog;
         }
 
-        public void onDateSet(DatePicker view, int year, int month, int day)
+        public void onDateSet(DatePicker view, int year_, int month, int day)
         {
-            Log.d("Xedroid", year + " - " + month + " - " + day);
+            Calendar c = Calendar.getInstance();
+            c.clear();
+            c.set(Calendar.YEAR, year_);
+            c.set(Calendar.MONTH, month);
+            c.set(Calendar.DAY_OF_MONTH, day);
+
+            year = year_;
+            week = c.get(Calendar.WEEK_OF_YEAR);
+            weekday = c.get(Calendar.DAY_OF_WEEK);
+
+            refresh(false);
         }
     }
 }

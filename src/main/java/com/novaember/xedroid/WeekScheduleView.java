@@ -103,6 +103,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
             eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
+            eventView.setElevation(getPx(4));
+
             eventView.setLayoutParams(params);
             eventView.setOnClickListener(self);
             eventView.setOnLongClickListener(self);
