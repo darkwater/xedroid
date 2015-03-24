@@ -75,7 +75,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         if (attendee.getId() == 0)
         {
             SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
-            attendee = new Attendee(sharedPref.getInt(getString(R.string.preference_myschedule_key), 0));
+            attendee = new Attendee(sharedPref.getInt("myschedule", 0));
         }
 
         if (attendee.getId() == 0)
@@ -221,7 +221,7 @@ public class WeekScheduleActivity extends ActionBarActivity
         getMenuInflater().inflate(R.menu.weekschedule, menu);
 
         SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
-        boolean isMine = sharedPref.getInt(getString(R.string.preference_myschedule_key), 0) == attendee.getId();
+        boolean isMine = sharedPref.getInt("myschedule", 0) == attendee.getId();
         MenuItem item = menu.findItem(R.id.weekschedule_star);
         item.setChecked(isMine);
         item.setIcon(isMine ? R.drawable.ic_star_white_48dp : R.drawable.ic_star_outline_white_48dp);
@@ -251,14 +251,14 @@ public class WeekScheduleActivity extends ActionBarActivity
 
             if (!item.isChecked())
             {
-                editor.putInt(getString(R.string.preference_myschedule_key), attendee.getId());
+                editor.putInt("myschedule", attendee.getId());
 
                 item.setChecked(true);
                 item.setIcon(R.drawable.ic_star_white_48dp);
             }
             else
             {
-                editor.putInt(getString(R.string.preference_myschedule_key), 0);
+                editor.putInt("myschedule", 0);
 
                 item.setChecked(false);
                 item.setIcon(R.drawable.ic_star_outline_white_48dp);

@@ -37,7 +37,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
 
         // Only show up button if we have a class
         SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
-        myAttendeeDefined = sharedPref.getInt(getString(R.string.preference_myschedule_key), 0) != 0;
+        myAttendeeDefined = sharedPref.getInt("myschedule", 0) != 0;
         getSupportActionBar().setDisplayHomeAsUpEnabled(myAttendeeDefined);
 
         if (savedInstanceState == null)
