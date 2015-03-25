@@ -17,4 +17,7 @@
     <string name="weekschedule_star">Mijn rooster</string>
     <string name="weekschedule_weekselect">Selecteer week</string>
 
+    <string name="drawer_open">Open navigatie</string>
+    <string name="drawer_close">Sluit navigatie</string>
+
 </resources>

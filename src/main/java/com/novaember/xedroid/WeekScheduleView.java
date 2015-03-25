@@ -24,7 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
-public class WeekScheduleView extends RelativeLayout implements View.OnClickListener, View.OnLongClickListener
+public class WeekScheduleView extends RelativeLayout implements View.OnClickListener, View.OnLongClickListener, EventReceiver
 {
     private float startHour = 8.5f;
     private float endHour = 16.f;
@@ -34,6 +34,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
     private float hourHeight = 64; // dp
 
     private boolean currentWeek = false;
+    private int year;
+    private int week;
 
     private final Context context;
     private final WeekScheduleView self;
@@ -80,35 +82,32 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
     public void addEvent(final Event event)
     {
-        ((Activity) context).runOnUiThread(new Runnable() { public void run()
-        {
-            EventView eventView = new EventView(context, null, event);
+        EventView eventView = new EventView(context, null, event);
 
-            events.add(eventView);
-            dayColumns.get(event.getDay()).addView(eventView);
+        events.add(eventView);
+        dayColumns.get(event.getDay()).addView(eventView);
 
-            float height = getPx((event.getEnd().toFloat() - event.getStart().toFloat()) * hourHeight + 1);
-            float y = getPx((event.getStart().toFloat() - startHour) * hourHeight);
+        float height = getPx((event.getEnd().toFloat() - event.getStart().toFloat()) * hourHeight + 1);
+        float y = getPx((event.getStart().toFloat() - startHour) * hourHeight);
 
-            LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (int) height);
-            params.topMargin = (int) y;
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (int) height);
+        params.topMargin = (int) y;
 
-            ((TextView) eventView.findViewById(R.id.weekschedule_event_primary_text)).setText(event.getAbbreviation());
+        ((TextView) eventView.findViewById(R.id.weekschedule_event_primary_text)).setText(event.getAbbreviation());
 
-            String secondaryText = "";
-            for (int i = 0; i < event.getFacilities().size(); i++)
-                secondaryText += event.getFacilities().get(i).getName() + "\n";
+        String secondaryText = "";
+        for (int i = 0; i < event.getFacilities().size(); i++)
+            secondaryText += event.getFacilities().get(i).getName() + "\n";
 
-            ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(secondaryText);
+        ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(secondaryText);
 
-            eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
+        eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
-            eventView.setElevation(getPx(4));
+        eventView.setElevation(getPx(4));
 
-            eventView.setLayoutParams(params);
-            eventView.setOnClickListener(self);
-            eventView.setOnLongClickListener(self);
-        } });
+        eventView.setLayoutParams(params);
+        eventView.setOnClickListener(self);
+        eventView.setOnLongClickListener(self);
     }
 
     public void clear()
@@ -125,17 +124,13 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
         }
     }
     
-    public void addFromArrayList(ArrayList<Event> input, ProgressBar progressBar)
+    public void setEvents(ArrayList<Event> input)
     {
-        progressBar.setMax(input.size());
-        progressBar.setIndeterminate(false);
-        int progress = 0;
+        clear();
 
         for (Event event : input)
         {
             addEvent(event);
-
-            progressBar.setProgress(++progress);
         }
     }
 
@@ -161,9 +156,10 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
         return false;
     }
 
-    public void setCurrentWeek(boolean currentWeek)
+    public void setWeek(int year, int week)
     {
-        this.currentWeek = currentWeek;
+        this.year = year;
+        this.week = week;
     }
 
     private float getPx(float x)

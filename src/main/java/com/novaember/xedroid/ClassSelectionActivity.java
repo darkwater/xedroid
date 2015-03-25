@@ -33,7 +33,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_classselection);
+        setContentView(R.layout.classselection_activity);
 
         // Only show up button if we have a class
         SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
@@ -121,7 +121,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
     {
         try
         {
-            Intent intent = new Intent(this, WeekScheduleActivity.class);
+            Intent intent = new Intent(this, ScheduleActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("attendeeId", attendee.getId());
             startActivity(intent);
@@ -177,7 +177,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.classselection_fragment);
             if (fragment instanceof OrganisationsFragment)
             {
-                Intent intent = new Intent(this, WeekScheduleActivity.class);
+                Intent intent = new Intent(this, ScheduleActivity.class);
                 startActivity(intent);
             }
             else onBackPressed();

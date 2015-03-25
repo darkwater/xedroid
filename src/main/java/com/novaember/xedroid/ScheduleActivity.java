@@ -9,21 +9,18 @@ import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -41,32 +38,26 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class WeekScheduleActivity extends ActionBarActivity
+public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener
 {
-    private WeekScheduleActivity self;
-
-    private WeekScheduleView weekScheduleView;
-    private ProgressBar progressBar;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
+    private EventReceiver currentFragment;
 
     private Attendee attendee;
     private int year;
     private int week;
     private int weekday;
 
-    private WeekAdapter weekAdapter;
     private boolean refreshing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        self = this;
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weekschedule);
+        setContentView(R.layout.schedule_activity);
 
         Intent intent = getIntent();
         attendee = new Attendee(intent.getIntExtra("attendeeId", 0));
@@ -97,9 +88,6 @@ public class WeekScheduleActivity extends ActionBarActivity
             return;
         }
 
-        weekScheduleView = (WeekScheduleView) findViewById(R.id.weekschedule);
-        progressBar = (ProgressBar) findViewById(R.id.weekschedule_progressbar);
-
         if (year == 1970 && week == 1)
         {
             Calendar calendar = Calendar.getInstance();
@@ -108,54 +96,57 @@ public class WeekScheduleActivity extends ActionBarActivity
             weekday = calendar.get(Calendar.DAY_OF_WEEK);
         }
 
+        WeekScheduleFragment weekScheduleFragment = new WeekScheduleFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.schedule_fragment, weekScheduleFragment).commit();
+        currentFragment = weekScheduleFragment;
+
+        resetActionBarTitle();
+        refresh(false);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
+
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayHomeAsUpEnabled(true);
+        bar.setHomeButtonEnabled(true);
+    }
+
+    public void onEventSelected(Event event)
+    {
+        Log.d("Xedroid", event.getDescription());
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState)
+    {
+        super.onPostCreate(savedInstanceState);
+
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    private void resetActionBarTitle()
+    {
         ActionBar bar = getSupportActionBar();
         bar.setTitle(attendee.getName());
         bar.setSubtitle("Week " + week);
-
-        refresh(false);
-
-        Timer timer = new Timer();
-        InvalidateTimer task = new InvalidateTimer(this);
-        timer.schedule(task, 60 * 1000, 60 * 1000);
-
-        weekScheduleView.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                Log.d("Xedroid", ((WeekScheduleView.EventView) view).getEvent().getDescription());
-
-                try
-                {
-                    Event event = ((WeekScheduleView.EventView) view).getEvent();
-                    Intent intent = new Intent(self, DayScheduleActivity.class);
-                    intent.putExtra("attendeeId", attendee.getId());
-                    intent.putExtra("year", year);
-                    intent.putExtra("week", week);
-                    intent.putExtra("day", event.getDay());
-                    intent.putExtra("eventId", event.getId());
-                    startActivity(intent);
-                }
-                catch(Exception e)
-                {
-                    Log.e("Xedroid", "Error: " + e.getMessage());
-                }
-            }
-        });
     }
 
     public void refresh(final boolean force)
     {
         if (refreshing) return;
-
-        weekScheduleView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.setIndeterminate(true);
         refreshing = true;
 
-        ActionBar bar = getSupportActionBar();
-        bar.setSubtitle("Week " + week);
-
-        weekScheduleView.clear();
+        currentFragment.setWeek(year, week);
 
         new AsyncTask<Void, Void, Void>()
         {
@@ -175,27 +166,15 @@ public class WeekScheduleActivity extends ActionBarActivity
                 {
                     Xedule.updateEvents(attendee.getId(), year, week);
                     Xedule.updateLocations(attendee.getLocation().getOrganisation());
-                    weekScheduleView.addFromArrayList(attendee.getEvents(year, week), progressBar);
                 }
-                else
-                {
-                    ArrayList<Event> attendees = attendee.getEvents(year, week);
-                    weekScheduleView.addFromArrayList(attendees, progressBar);
-                }
+
+                currentFragment.setEvents(attendee.getEvents(year, week));
 
                 return null;
             }
 
             protected void onPostExecute(Void _)
             {
-                progressBar.setVisibility(View.GONE);
-                weekScheduleView.setVisibility(View.VISIBLE);
-
-                Calendar calendar = Calendar.getInstance();
-                int thisYear = calendar.get(Calendar.YEAR);
-                int thisWeek = calendar.get(Calendar.WEEK_OF_YEAR);
-                weekScheduleView.setCurrentWeek(year == thisYear && week == thisWeek);
-
                 refreshing = false;
             }
         }.execute();
@@ -219,9 +198,11 @@ public class WeekScheduleActivity extends ActionBarActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will automatically
-        // handle clicks on the Home/Up button, so long as you specify a parent
-        // activity in AndroidManifest.xml.
+        if (drawerToggle.onOptionsItemSelected(item))
+        {
+            return true;
+        }
+
         int id = item.getItemId();
 
         if (id == R.id.weekschedule_weekselect)
@@ -260,31 +241,6 @@ public class WeekScheduleActivity extends ActionBarActivity
         {
             refresh(true);
 
-            return true;
-        }
-
-        if (id == android.R.id.home)
-        {
-            Intent upIntent = NavUtils.getParentActivityIntent(this);
-            upIntent.putExtra("locationId", attendee.getLocation().getId());
-            if (NavUtils.shouldUpRecreateTask(this, upIntent))
-            {
-                // This activity is NOT part of this app's task, so create a new task
-                // when navigating up, with a synthesized back stack.
-                TaskStackBuilder.create(this)
-                        // Add all of this activity's parents to the back stack
-                        .addNextIntentWithParentStack(upIntent)
-                        // Navigate up to the closest parent
-                        .startActivities();
-            }
-            else
-            {
-                // This activity is part of this app's task, so simply
-                // navigate up to the logical parent activity.
-                Intent intent = new Intent(self, AttendeesActivity.class);
-                intent.putExtra("locationId", attendee.getLocation().getId());
-                startActivity(intent);
-            }
             return true;
         }
 
@@ -348,147 +304,5 @@ public class WeekScheduleActivity extends ActionBarActivity
 
             refresh(false);
         }
-    }
-}
-
-class WeekAdapter extends BaseAdapter
-{
-    private ArrayList<Week> weeks;
-    private String title;
-    private static LayoutInflater inflater = null;
-
-    public WeekAdapter(Context context, String[] weeks)
-    {
-        this.weeks = new ArrayList<Week>();
-        for (String week : weeks)
-        {
-            this.weeks.add(new Week(week));
-        }
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-
-    public Week getItem(int position)
-    {
-        return weeks.get(position);
-    }
-
-    public long getItemId(int position)
-    {
-        return position;
-    }
-
-    public int getCount()
-    {
-        return weeks.size();
-    }
-
-    public int selectWeek(int year, int week)
-    {
-        for (int i = 0; i < weeks.size(); i++)
-        {
-            Week w = weeks.get(i);
-
-            if (w.year == year && w.week == week)
-            {
-                return i;
-            }
-
-            if (w.year == year && w.week > week || w.year > year)
-            {
-                weeks.add(i, new Week(year, week));
-                return i;
-            }
-        }
-
-        weeks.add(new Week(year, week));
-        return weeks.size() - 1;
-    }
-
-    public View getDropDownView(int position, View convertView, ViewGroup parent)
-    {
-        if (convertView == null)
-            convertView = inflater.inflate(R.layout.week_item, parent, false);
-
-        ((TextView) convertView).setText(getItem(position).toShortString());
-
-        return convertView;
-    }
-
-    public View getView(int position, View convertView, ViewGroup parent)
-    {
-        LinearLayout view = (LinearLayout) inflater.inflate(R.layout.week_dropdown_header, null);
-
-        Week week = getItem(position);
-
-        ((TextView) view.findViewById(R.id.weekschedule_attendee_name)).setText(title);
-        ((TextView) view.findViewById(R.id.weekschedule_week)).setText(week.toShortString());
-
-        return view;
-    }
-}
-
-class Week
-{
-    public final int year;
-    public final int week;
-
-    public Week(String week)
-    {
-        String[] split = week.split("/");
-        if (split.length == 2)
-        {
-            this.year = Integer.parseInt(split[0]);
-            this.week = Integer.parseInt(split[1]);
-        }
-        else
-        {
-            this.year = 0;
-            this.week = 0;
-
-            Log.w("Xedroid", "Invalid week! " + week);
-        }
-    }
-
-    public Week(int year, int week)
-    {
-        this.year = year;
-        this.week = week;
-    }
-
-    public String toString()
-    {
-        return year + "/" + week;
-    }
-
-    public String toNiceString()
-    {
-        return year + " week " + week;
-    }
-
-    public String toShortString()
-    {
-        return "Week " + week;
-    }
-}
-
-final class InvalidateTimer extends TimerTask
-{
-    WeekScheduleActivity activity;
-
-    public InvalidateTimer(WeekScheduleActivity activity)
-    {
-        this.activity = activity;
-    }
-
-    @Override
-    public void run()
-    {
-        // activity.invalidateView();
     }
 }
