@@ -13,14 +13,13 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -28,6 +27,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -115,7 +115,22 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void onEventSelected(Event event)
     {
-        Log.d("Xedroid", event.getDescription());
+        DayScheduleFragment dayScheduleFragment = new DayScheduleFragment();
+
+        Bundle args = new Bundle();
+        args.putInt("attendeeId", attendee.getId());
+        args.putInt("year", year);
+        args.putInt("week", week);
+        args.putInt("day", event.getDay());
+        args.putInt("eventId", event.getId());
+        dayScheduleFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.schedule_fragment, dayScheduleFragment)
+            .addToBackStack(null)
+            .commit();
+
+        getSupportActionBar().setElevation(0);
     }
 
     @Override

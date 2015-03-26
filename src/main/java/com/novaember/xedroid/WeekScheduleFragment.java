@@ -1,14 +1,5 @@
 package com.novaember.xedroid;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +21,15 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WeekScheduleFragment extends Fragment implements EventReceiver
 {
@@ -58,7 +58,8 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
         {
             public void onClick(View view)
             {
-                listener.onEventSelected(((WeekScheduleView.EventView) view).getEvent());
+                if (listener != null) listener.onEventSelected(((WeekScheduleView.EventView) view).getEvent());
+                else Log.w("Xedroid", "WeekScheduleFragment's listener is null!");
             }
         });
 
@@ -71,6 +72,15 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
         super.onAttach(activity);
 
         this.activity = activity;
+
+        try
+        {
+            listener = (OnEventSelectedListener) activity;
+        }
+        catch (ClassCastException e)
+        {
+            throw new ClassCastException(activity.toString() + " must implement OnEventSelectedListener");
+        }
 
         Timer timer = new Timer();
         InvalidateTimer task = new InvalidateTimer(this);
