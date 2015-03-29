@@ -34,6 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
@@ -56,6 +57,8 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule_activity);
 
@@ -126,6 +129,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         dayScheduleFragment.setArguments(args);
 
         getSupportFragmentManager().beginTransaction()
+            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
             .replace(R.id.schedule_fragment, dayScheduleFragment)
             .addToBackStack(null)
             .commit();
