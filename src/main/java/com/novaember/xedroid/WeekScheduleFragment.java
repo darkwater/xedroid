@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,8 +37,6 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
 {
     private OnEventSelectedListener listener;
     private WeekScheduleView weekScheduleView;
-    private Activity activity;
-
     private Attendee attendee;
     private int year;
     private int week;
@@ -71,8 +71,6 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
     {
         super.onAttach(activity);
 
-        this.activity = activity;
-
         try
         {
             listener = (OnEventSelectedListener) activity;
@@ -87,16 +85,31 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
         timer.schedule(task, 60 * 1000, 60 * 1000);
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+
+        ((ScheduleActivity) getActivity()).refresh(false);
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(getPx(8));
+    }
+
+    private float getPx(float x)
+    {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, getResources().getDisplayMetrics());
+    }
+
     public void setEvents(final ArrayList<Event> events)
     {
-        activity.runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                weekScheduleView.clear();
-                weekScheduleView.setEvents(events);
-            }
-        });
+        weekScheduleView.clear();
+        weekScheduleView.setEvents(events);
     }
 
     public void setWeek(int year, int week)
@@ -119,7 +132,6 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
         @Override
         public void run()
         {
-            // activity.invalidateView();
         }
     }
 }

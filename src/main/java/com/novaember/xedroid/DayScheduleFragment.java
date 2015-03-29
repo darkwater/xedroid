@@ -15,7 +15,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -77,6 +76,14 @@ public class DayScheduleFragment extends Fragment
     public void onAttach(Activity activity)
     {
         super.onAttach(activity);
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(0);
     }
 
     public static class DaySchedulePagerAdapter extends FragmentPagerAdapter

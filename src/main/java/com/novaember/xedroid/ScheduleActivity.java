@@ -129,8 +129,6 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             .replace(R.id.schedule_fragment, dayScheduleFragment)
             .addToBackStack(null)
             .commit();
-
-        getSupportActionBar().setElevation(0);
     }
 
     @Override
@@ -183,7 +181,13 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
                     Xedule.updateLocations(attendee.getLocation().getOrganisation());
                 }
 
-                currentFragment.setEvents(attendee.getEvents(year, week));
+                runOnUiThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                currentFragment.setEvents(attendee.getEvents(year, week));
+                            }
+                        });
 
                 return null;
             }
