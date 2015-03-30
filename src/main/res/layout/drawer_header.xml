@@ -1,0 +1,22 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="56dp"
+        android:paddingTop="8dp">
+
+    <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:alpha="0.1"
+            android:background="#000000" />
+
+    <TextView
+            android:id="@+id/drawer_header_label"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="16dp"
+            android:textSize="14sp"
+            android:textColor="#8a000000" />
+
+</RelativeLayout>

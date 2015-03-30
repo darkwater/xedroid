@@ -9,6 +9,7 @@ import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -35,16 +36,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener
+public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener,
+                                                                   ListView.OnItemClickListener
 {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+    private DrawerAdapter drawerAdapter;
     private EventReceiver currentFragment;
 
     private Attendee attendee;
@@ -70,7 +75,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
         if (attendee.getId() == 0)
         {
-            SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("global", Context.MODE_PRIVATE);
             attendee = new Attendee(sharedPref.getInt("myschedule", 0));
         }
 
@@ -106,6 +111,11 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         resetActionBarTitle();
         refresh(false);
 
+        ListView drawer = (ListView) findViewById(R.id.schedule_drawer);
+        drawerAdapter = new DrawerAdapter(this);
+        drawer.setAdapter(drawerAdapter);
+        drawer.setOnItemClickListener(this);
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
 
@@ -114,6 +124,11 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
         bar.setHomeButtonEnabled(true);
+    }
+
+    public void onItemClick(AdapterView parent, View view, int position, long id)
+    {
+        drawerAdapter.getItem(position).onClick();
     }
 
     public void onEventSelected(Event event)
@@ -209,7 +224,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.weekschedule, menu);
 
-        SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences("global", Context.MODE_PRIVATE);
         boolean isMine = sharedPref.getInt("myschedule", 0) == attendee.getId();
         MenuItem item = menu.findItem(R.id.weekschedule_star);
         item.setChecked(isMine);
@@ -237,7 +252,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
         if (id == R.id.weekschedule_star)
         {
-            SharedPreferences sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences("global", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
 
             if (!item.isChecked())
@@ -268,6 +283,11 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private ScheduleActivity getThisActivity()
+    {
+        return this;
     }
 
     public void showDatePickerDialog()
@@ -326,6 +346,181 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             weekday = c.get(Calendar.DAY_OF_WEEK);
 
             refresh(false);
+        }
+    }
+
+    public class DrawerAdapter extends BaseAdapter
+    {
+        private ArrayList<Item> items;
+        private LayoutInflater inflater;
+
+        public final static int TYPE_HEADER_ITEM = 0;
+        public final static int TYPE_LIST_ITEM = 1;
+        public final static int TYPE_COUNT = 2;
+
+        public DrawerAdapter(Activity activity)
+        {
+            items = new ArrayList<Item>();
+
+            SharedPreferences sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE);
+            if (sharedPref.contains("myschedule"))
+            {
+                Attendee myAttendee = new Attendee(sharedPref.getInt("myschedule", 0));
+
+                items.add(new IntentItem(activity.getString(R.string.pick_schedule), ClassSelectionActivity.class));
+
+                items.add(new HeaderItem(activity.getString(R.string.myschedule_label)));
+                items.add(new AttendeeItem(myAttendee));
+
+                items.add(new HeaderItem(activity.getString(R.string.recent_schedules)));
+                items.add(new AttendeeItem(new Attendee(14293)));
+                items.add(new AttendeeItem(new Attendee(14294)));
+                items.add(new AttendeeItem(new Attendee(14295)));
+            }
+
+            inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public long getItemId(int position)
+        {
+            return (long) position;
+        }
+
+        public Item getItem(int position)
+        {
+            return items.get(position);
+        }
+
+        public boolean isEnabled(int position)
+        {
+            return !(getItem(position) instanceof HeaderItem);
+        }
+
+        public int getCount()
+        {
+            return items.size();
+        }
+
+        public int getViewTypeCount()
+        {
+            return TYPE_COUNT;
+        }
+
+        public int getItemViewType(int position)
+        {
+            return getItem(position).getViewType();
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            Item item = getItem(position);
+            convertView = item.getView(inflater, convertView);
+            convertView.setTag(item);
+
+            return convertView;
+        }
+
+        public abstract class Item
+        {
+            public abstract int getViewType();
+            public abstract void onClick();
+            public abstract View getView(LayoutInflater inflater, View convertView);
+        }
+
+        public class HeaderItem extends Item
+        {
+            private String label;
+
+            public HeaderItem(String label)
+            {
+                this.label = label;
+            }
+
+            public int getViewType()
+            {
+                return TYPE_HEADER_ITEM;
+            }
+
+            public void onClick()
+            {
+                return;
+            }
+
+            public View getView(LayoutInflater inflater, View convertView)
+            {
+                if (convertView == null)
+                    convertView = inflater.inflate(R.layout.drawer_header, null);
+
+                ((TextView) convertView.findViewById(R.id.drawer_header_label)).setText(label);
+
+                return convertView;
+            }
+        }
+
+        public abstract class ListItem extends Item implements ListView.OnItemClickListener
+        {
+            private String label;
+
+            public ListItem(String label)
+            {
+                this.label = label;
+            }
+
+            public int getViewType()
+            {
+                return TYPE_LIST_ITEM;
+            }
+
+            public View getView(LayoutInflater inflater, View convertView)
+            {
+                if (convertView == null)
+                    convertView = inflater.inflate(R.layout.drawer_item, null);
+
+                ((TextView) convertView.findViewById(R.id.drawer_item_label)).setText(label);
+
+                return convertView;
+            }
+
+            public void onItemClick(AdapterView parent, View view, int position, long id)
+            {
+                onClick();
+            }
+        }
+
+        public class AttendeeItem extends ListItem
+        {
+            private Attendee attendee;
+
+            public AttendeeItem(Attendee attendee)
+            {
+                super(attendee.getName());
+                this.attendee = attendee;
+            }
+
+            public void onClick()
+            {
+                Intent intent = new Intent(getThisActivity(), ScheduleActivity.class);
+                intent.putExtra("attendeeId", attendee.getId());
+                startActivity(intent);
+            }
+        }
+
+        public class IntentItem<T> extends ListItem
+        {
+            private Class<?> klass;
+
+            public IntentItem(String label, Class<?> klass)
+            {
+                super(label);
+
+                this.klass = klass;
+            }
+
+            public void onClick()
+            {
+                Intent intent = new Intent(getThisActivity(), klass);
+                startActivity(intent);
+            }
         }
     }
 }
