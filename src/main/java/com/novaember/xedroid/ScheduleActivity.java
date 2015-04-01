@@ -126,7 +126,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         getSupportFragmentManager().beginTransaction().add(R.id.schedule_fragment, weekScheduleFragment).commit();
         currentFragment = weekScheduleFragment;
 
-        resetActionBarTitle();
+        updateActionBarTitle();
         refresh(false);
 
         ListView drawer = (ListView) findViewById(R.id.schedule_drawer);
@@ -192,7 +192,32 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void resetActionBarTitle()
+    public Attendee getAttendee()
+    {
+        return attendee;
+    }
+
+    public Calendar getDate()
+    {
+        Calendar c = Calendar.getInstance();
+        c.clear();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.WEEK_OF_YEAR, week);
+        c.set(Calendar.DAY_OF_WEEK, weekday);
+
+        return c;
+    }
+
+    public void setDate(Calendar c)
+    {
+        year = c.get(Calendar.YEAR);
+        week = c.get(Calendar.WEEK_OF_YEAR);
+        weekday = c.get(Calendar.DAY_OF_WEEK);
+
+        updateActionBarTitle();
+    }
+
+    private void updateActionBarTitle()
     {
         ActionBar bar = getSupportActionBar();
         bar.setTitle(attendee.getName());
@@ -322,17 +347,23 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         dialog.show(getSupportFragmentManager(), "datePicker");
     }
 
-    public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
     {
+        private ScheduleActivity activity;
+
+        @Override
+        public void onAttach(Activity activity)
+        {
+            super.onAttach(activity);
+
+            this.activity = (ScheduleActivity) activity;
+        }
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
             // Calculate default selected date
-            Calendar c = Calendar.getInstance();
-            c.clear();
-            c.set(Calendar.YEAR, year);
-            c.set(Calendar.WEEK_OF_YEAR, week);
-            c.set(Calendar.DAY_OF_WEEK, weekday);
+            Calendar c = activity.getDate();
 
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
@@ -342,14 +373,22 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
             DatePicker picker = dialog.getDatePicker();
 
+            String[] weeks = activity.getAttendee().getLocation().getWeeks();
+
             // Calculate minimum date
+            // [ "2014/35", "2014/36", ... ] -> [ "2014", "35" ]
+            String[] firstWeek = TextUtils.split(weeks[0], "/");
             Calendar min = (Calendar) c.clone();
             min.clear();
-            min.set(Calendar.YEAR, 2014);
-            min.set(Calendar.WEEK_OF_YEAR, 35);
+            min.set(Calendar.YEAR, Integer.parseInt(firstWeek[0]));
+            min.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(firstWeek[1]));
 
             // Calculate maximum date
-            Calendar max = Calendar.getInstance();
+            String[] lastWeek = TextUtils.split(weeks[weeks.length - 1], "/");
+            Calendar max = (Calendar) c.clone();
+            max.clear();
+            max.set(Calendar.YEAR, Integer.parseInt(lastWeek[0]));
+            max.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(lastWeek[1]));
             max.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 
             // Configure picker
@@ -359,19 +398,16 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             return dialog;
         }
 
-        public void onDateSet(DatePicker view, int year_, int month, int day)
+        public void onDateSet(DatePicker view, int year, int month, int day)
         {
             Calendar c = Calendar.getInstance();
             c.clear();
-            c.set(Calendar.YEAR, year_);
+            c.set(Calendar.YEAR, year);
             c.set(Calendar.MONTH, month);
             c.set(Calendar.DAY_OF_MONTH, day);
 
-            year = year_;
-            week = c.get(Calendar.WEEK_OF_YEAR);
-            weekday = c.get(Calendar.DAY_OF_WEEK);
-
-            refresh(false);
+            activity.setDate(c);
+            activity.refresh(false);
         }
     }
 

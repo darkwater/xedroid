@@ -119,7 +119,7 @@ public class DayScheduleFragment extends Fragment
         }
     }
 
-    private static class DaySchedulePageFragment extends ListFragment
+    public static class DaySchedulePageFragment extends ListFragment
     {
         private Attendee attendee;
         private int year;
