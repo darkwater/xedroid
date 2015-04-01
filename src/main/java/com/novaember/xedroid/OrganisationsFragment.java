@@ -70,6 +70,9 @@ public class OrganisationsFragment extends ListFragment
 
     public void populateList(List<Organisation> organisations)
     {
+        if (getActivity() == null) return; // The activity could have been destroyed since we're coming
+                                           //  from a background job
+
         adapter = new ArrayAdapter<Organisation>(getActivity(), R.layout.organisation_item, organisations);
 
         setListAdapter(adapter);

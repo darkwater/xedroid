@@ -131,6 +131,9 @@ public class AttendeesFragment extends ListFragment
 
         public AttendeesAdapter(Activity a, ArrayList<Attendee> input)
         {
+            if (a == null) return; // The activity could have been destroyed since we're coming
+                                   //  from a background job
+
             activity = a;
             data = input;
 

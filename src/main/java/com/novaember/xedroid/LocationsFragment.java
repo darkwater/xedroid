@@ -83,6 +83,9 @@ public class LocationsFragment extends ListFragment
 
     public void populateList(List<Location> locations)
     {
+        if (getActivity() == null) return; // The activity could have been destroyed since we're coming
+                                           //  from a background job
+
         adapter = new ArrayAdapter<Location>(getActivity(), R.layout.location_item, locations);
 
         setListAdapter(adapter);
