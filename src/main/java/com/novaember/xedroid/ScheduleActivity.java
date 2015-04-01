@@ -3,9 +3,12 @@ package com.novaember.xedroid;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,6 +32,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,6 +51,8 @@ import android.widget.TextView;
 public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener,
                                                                    ListView.OnItemClickListener
 {
+    public final static int RECENTS_LIST_MAX_SIZE = 5;
+
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerAdapter drawerAdapter;
@@ -95,6 +101,18 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
             return;
         }
+
+        SharedPreferences sharedPref = getSharedPreferences("global", Context.MODE_PRIVATE);
+        ArrayList<String> recents = new ArrayList<String>(Arrays.asList(sharedPref.getString("recents", "").split(",")));
+        recents.remove("");
+        recents.remove(Integer.toString(attendee.getId()));
+        recents.add(0, Integer.toString(attendee.getId()));
+
+        while (recents.size() > RECENTS_LIST_MAX_SIZE) recents.remove(RECENTS_LIST_MAX_SIZE);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("recents", TextUtils.join(",", recents.toArray()));
+        editor.commit();
 
         if (year == 1970 && week == 1)
         {
@@ -156,6 +174,14 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         super.onPostCreate(savedInstanceState);
 
         drawerToggle.syncState();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        drawerAdapter.refresh();
     }
 
     @Override
@@ -264,7 +290,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             }
             else
             {
-                editor.putInt("myschedule", 0);
+                editor.remove("myschedule");
 
                 item.setChecked(false);
                 item.setIcon(R.drawable.ic_star_outline_white_24dp);
@@ -351,6 +377,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public class DrawerAdapter extends BaseAdapter
     {
+        private Activity activity;
         private ArrayList<Item> items;
         private LayoutInflater inflater;
 
@@ -360,25 +387,42 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
         public DrawerAdapter(Activity activity)
         {
+            this.activity = activity;
+            refresh();
+
+            inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public void refresh()
+        {
             items = new ArrayList<Item>();
 
+            // Class selection
+            items.add(new IntentItem(activity.getString(R.string.pick_schedule), ClassSelectionActivity.class));
+
+            // Starred schedule
             SharedPreferences sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE);
-            if (sharedPref.contains("myschedule"))
+            if (sharedPref.getInt("myschedule", 0) != 0)
             {
                 Attendee myAttendee = new Attendee(sharedPref.getInt("myschedule", 0));
 
-                items.add(new IntentItem(activity.getString(R.string.pick_schedule), ClassSelectionActivity.class));
-
                 items.add(new HeaderItem(activity.getString(R.string.myschedule_label)));
                 items.add(new AttendeeItem(myAttendee));
-
-                items.add(new HeaderItem(activity.getString(R.string.recent_schedules)));
-                items.add(new AttendeeItem(new Attendee(14293)));
-                items.add(new AttendeeItem(new Attendee(14294)));
-                items.add(new AttendeeItem(new Attendee(14295)));
             }
 
-            inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            // Recent schedules
+            List<String> recents = Arrays.asList(sharedPref.getString("recents", "").split(","));
+            items.add(new HeaderItem(activity.getString(R.string.recent_schedules)));
+            for (String recent : recents) try
+            {
+                items.add(new AttendeeItem(new Attendee(Integer.parseInt(recent))));
+            }
+            catch (NumberFormatException e) 
+            {
+                // TODO: Remove item from array
+            }
+
+            notifyDataSetChanged();
         }
 
         public long getItemId(int position)

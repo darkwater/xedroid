@@ -24,11 +24,4 @@
         app:showAsAction="ifRoom"
         android:title="@string/action_refresh" />
 
-    <item
-        android:id="@+id/weekschedule_settings"
-        android:icon="@drawable/ic_settings_white_24dp"
-        android:orderInCategory="90"
-        app:showAsAction="ifRoom"
-        android:title="@string/action_settings" />
-
 </menu>
