@@ -74,7 +74,7 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
             View marker = inflate(context, R.layout.weekschedule_hourmarker, null);
             ((TextView) marker.findViewById(R.id.weekschedule_hourmarker_label)).setText(h + "h");
             LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            params.topMargin = (int) getPx(((h - startHour) * hourHeight));
+            params.topMargin = (int) Util.getPx(((h - startHour) * hourHeight));
             marker.setLayoutParams(params);
             dayColumns.get(0).addView(marker);
         }
@@ -87,8 +87,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
         events.add(eventView);
         dayColumns.get(event.getDay()).addView(eventView);
 
-        float height = getPx((event.getEnd().toFloat() - event.getStart().toFloat()) * hourHeight + 1);
-        float y = getPx((event.getStart().toFloat() - startHour) * hourHeight);
+        float height = Util.getPx((event.getEnd().toFloat() - event.getStart().toFloat()) * hourHeight + 1);
+        float y = Util.getPx((event.getStart().toFloat() - startHour) * hourHeight);
 
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (int) height);
         params.topMargin = (int) y;
@@ -111,7 +111,7 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
         eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
-        eventView.setElevation(getPx(4));
+        eventView.setElevation(Util.getPx(4));
 
         eventView.setLayoutParams(params);
         eventView.setOnClickListener(self);
@@ -168,11 +168,6 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
     {
         this.year = year;
         this.week = week;
-    }
-
-    private float getPx(float x)
-    {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, getResources().getDisplayMetrics());
     }
 
     public static class EventView extends RelativeLayout

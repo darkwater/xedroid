@@ -98,12 +98,7 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
     {
         super.onResume();
 
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(getPx(8));
-    }
-
-    private float getPx(float x)
-    {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, getResources().getDisplayMetrics());
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(Util.getPx(8));
     }
 
     public void setEvents(final ArrayList<Event> events)
