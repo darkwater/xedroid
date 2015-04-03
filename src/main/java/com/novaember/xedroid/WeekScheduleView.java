@@ -97,7 +97,15 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
         String secondaryText = "";
         for (int i = 0; i < event.getFacilities().size(); i++)
+        {
+            if (i >= 5)
+            {
+                secondaryText += "⋮"; // U+22EE Vertical Ellipsis
+                break;
+            }
+
             secondaryText += event.getFacilities().get(i).getName() + "\n";
+        }
 
         ((TextView) eventView.findViewById(R.id.weekschedule_event_secondary_text)).setText(secondaryText);
 
