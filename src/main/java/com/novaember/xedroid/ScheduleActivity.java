@@ -40,6 +40,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -49,7 +50,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener,
-                                                                   ListView.OnItemClickListener
+                                                                   ListView.OnItemClickListener,
+                                                                   ListView.OnScrollListener
 {
     public final static int RECENTS_LIST_MAX_SIZE = 5;
 
@@ -57,6 +59,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
     private ActionBarDrawerToggle drawerToggle;
     private DrawerAdapter drawerAdapter;
     private EventReceiver currentFragment;
+    private LinearLayout drawerFooter;
 
     private Attendee attendee;
     private int year;
@@ -133,6 +136,9 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         drawerAdapter = new DrawerAdapter(this);
         drawer.setAdapter(drawerAdapter);
         drawer.setOnItemClickListener(this);
+        drawer.setOnScrollListener(this);
+
+        drawerFooter = (LinearLayout) findViewById(R.id.schedule_drawer_footer);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
@@ -147,6 +153,22 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
     public void onItemClick(AdapterView parent, View view, int position, long id)
     {
         drawerAdapter.getItem(position).onClick();
+    }
+
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+    {
+        if (firstVisibleItem + visibleItemCount != totalItemCount) return; // We're not anywhere near the bottom
+
+        View bottomView = view.getChildAt(view.getChildCount() - 1);
+        if (bottomView == null) return; // Shouldn't happen, but still
+
+        int offset = (bottomView.getBottom() - (view.getHeight() - (int) Util.getPx(8, getResources())));
+        drawerFooter.setElevation(Math.min(offset, Util.getPx(16, getResources())));
+    }
+
+    public void onScrollStateChanged(AbsListView view, int scrollState)
+    {
+        // stub
     }
 
     public void onEventSelected(Event event)
@@ -334,6 +356,16 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openSettings(View v)
+    {
+        // stub
+    }
+
+    public void openHelpFeedback(View v)
+    {
+        // stub
     }
 
     private ScheduleActivity getThisActivity()

@@ -30,35 +30,47 @@
                 android:dividerHeight="0dp"
                 android:background="#ffffff" />
 
-        <View
+        <LinearLayout
+                android:id="@+id/schedule_drawer_footer"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#000000"
-                android:alpha="0.1" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:elevation="16dp"
+                android:background="#ffffff">
 
-        <Button
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:gravity="left|center_vertical"
-                android:paddingLeft="72dp"
-                android:background="?attr/selectableItemBackground"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/settings"
-                android:textSize="14sp"
-                android:textColor="#dd000000" />
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#000000"
+                    android:alpha="0.1" />
 
-        <Button
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginBottom="8dp"
-                android:gravity="left|center_vertical"
-                android:paddingLeft="72dp"
-                android:background="?attr/selectableItemBackground"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/help_feedback"
-                android:textSize="14sp"
-                android:textColor="#dd000000" />
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="left|center_vertical"
+                    android:paddingLeft="72dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/settings"
+                    android:textSize="14sp"
+                    android:textColor="#dd000000"
+                    android:onClick="openSettings" />
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="left|center_vertical"
+                    android:paddingLeft="72dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/help_feedback"
+                    android:textSize="14sp"
+                    android:textColor="#dd000000"
+                    android:onClick="openHelpFeedback" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
