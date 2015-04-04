@@ -45,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -152,7 +153,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void onItemClick(AdapterView parent, View view, int position, long id)
     {
-        drawerAdapter.getItem(position).onClick();
+        drawerAdapter.getItem(position).onClick(parent.getContext());
     }
 
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
@@ -368,11 +369,6 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         // stub
     }
 
-    private ScheduleActivity getThisActivity()
-    {
-        return this;
-    }
-
     public void showDatePickerDialog()
     {
         DialogFragment dialog = new DatePickerFragment();
@@ -443,7 +439,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         }
     }
 
-    public class DrawerAdapter extends BaseAdapter
+    public static class DrawerAdapter extends BaseAdapter
     {
         private Activity activity;
         private ArrayList<Item> items;
@@ -466,7 +462,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             items = new ArrayList<Item>();
 
             // Class selection
-            items.add(new IntentItem(activity.getString(R.string.pick_schedule), ClassSelectionActivity.class));
+            items.add(new IntentItem(R.drawable.ic_list_black_24dp, activity.getString(R.string.pick_schedule), ClassSelectionActivity.class));
 
             // Starred schedule
             SharedPreferences sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE);
@@ -532,14 +528,14 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             return convertView;
         }
 
-        public abstract class Item
+        public static abstract class Item
         {
             public abstract int getViewType();
-            public abstract void onClick();
+            public abstract void onClick(Context context);
             public abstract View getView(LayoutInflater inflater, View convertView);
         }
 
-        public class HeaderItem extends Item
+        public static class HeaderItem extends Item
         {
             private String label;
 
@@ -553,7 +549,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
                 return TYPE_HEADER_ITEM;
             }
 
-            public void onClick()
+            public void onClick(Context context)
             {
                 return;
             }
@@ -569,12 +565,14 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             }
         }
 
-        public abstract class ListItem extends Item implements ListView.OnItemClickListener
+        public static abstract class ListItem extends Item implements ListView.OnItemClickListener
         {
             private String label;
+            private int icon;
 
-            public ListItem(String label)
+            public ListItem(int icon, String label)
             {
+                this.icon = icon;
                 this.label = label;
             }
 
@@ -589,49 +587,62 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
                     convertView = inflater.inflate(R.layout.drawer_item, null);
 
                 ((TextView) convertView.findViewById(R.id.drawer_item_label)).setText(label);
+                ((ImageView) convertView.findViewById(R.id.drawer_item_icon)).setImageResource(icon);
 
                 return convertView;
             }
 
             public void onItemClick(AdapterView parent, View view, int position, long id)
             {
-                onClick();
+                onClick(parent.getContext());
             }
         }
 
-        public class AttendeeItem extends ListItem
+        public static class AttendeeItem extends ListItem
         {
             private Attendee attendee;
 
             public AttendeeItem(Attendee attendee)
             {
-                super(attendee.getName());
+                super(getIconResource(attendee), attendee.getName());
+
                 this.attendee = attendee;
             }
 
-            public void onClick()
+            public void onClick(Context context)
             {
-                Intent intent = new Intent(getThisActivity(), ScheduleActivity.class);
+                Intent intent = new Intent(context, ScheduleActivity.class);
                 intent.putExtra("attendeeId", attendee.getId());
-                startActivity(intent);
+                context.startActivity(intent);
+            }
+
+            private static int getIconResource(Attendee attendee)
+            {
+                switch (attendee.getType())
+                {
+                    case CLASS:    return R.drawable.ic_school_black_24dp;
+                    case STAFF:    return R.drawable.ic_person_black_24dp;
+                    case FACILITY: return R.drawable.ic_home_black_24dp;
+                    default:       return R.drawable.ic_help_black_24dp;
+                }
             }
         }
 
-        public class IntentItem<T> extends ListItem
+        public static class IntentItem<T> extends ListItem
         {
             private Class<?> klass;
 
-            public IntentItem(String label, Class<?> klass)
+            public IntentItem(int icon, String label, Class<?> klass)
             {
-                super(label);
+                super(icon, label);
 
                 this.klass = klass;
             }
 
-            public void onClick()
+            public void onClick(Context context)
             {
-                Intent intent = new Intent(getThisActivity(), klass);
-                startActivity(intent);
+                Intent intent = new Intent(context, klass);
+                context.startActivity(intent);
             }
         }
     }
