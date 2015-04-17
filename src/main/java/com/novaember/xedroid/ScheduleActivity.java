@@ -345,6 +345,8 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             }
 
             editor.commit();
+            
+            drawerAdapter.refresh();
 
             return true;
         }
