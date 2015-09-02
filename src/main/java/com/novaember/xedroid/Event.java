@@ -25,7 +25,7 @@ public class Event implements Comparable<Event>
     {
         this.id = id;
 
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         Cursor cursor = db.query("events", new String[]{ "id", "year", "week", "day", "start", "end", "description" }, "id = " + this.id, null, null, null, "id", null);
 
         cursor.moveToFirst();

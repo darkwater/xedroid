@@ -69,7 +69,7 @@ public class Attendee implements Comparable<Attendee>
         this.type = Type.getById(cursor.getInt(3));
     }
 
-    public Attendee(int id, String name, Location location, int type)
+    public Attendee(int id, String name, Location location, String type)
     {
         this.id = id;
         this.name = name;
@@ -77,7 +77,7 @@ public class Attendee implements Comparable<Attendee>
 
         try
         {
-            this.type = Type.getById(type);
+            this.type = Type.valueOf(type.toUpperCase());
         }
         catch (Exception e)
         {
@@ -103,7 +103,7 @@ public class Attendee implements Comparable<Attendee>
 
     public boolean populate()
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         Cursor cursor = db.query("attendees", new String[]{ "id", "name", "location", "type" }, "id = " + this.id, null, null, null, "id", null);
 
         if (cursor == null || cursor.getCount() == 0) return false;

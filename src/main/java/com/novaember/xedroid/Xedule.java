@@ -72,7 +72,7 @@ public class Xedule
 
     public static void updateOrganisations()
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         db.beginTransaction();
 
         try
@@ -100,25 +100,18 @@ public class Xedule
 
     public static void updateLocations(Organisation organisation)
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         db.beginTransaction();
 
         try
         {
-            JSONArray locationsJSONArray = Xedule.getArray("locations." + organisation.getId() + ".json");
+            JSONArray locationsJSONArray = Xedule.getArray(organisation.getId() + "/locations.json");
 
             for (int i = 0; i < locationsJSONArray.length(); i++)
             {
                 JSONObject obj = locationsJSONArray.getJSONObject(i);
-                JSONArray weeksJSONArray = obj.getJSONArray("weeks");
-                ArrayList<String> weeks = new ArrayList<String>();
 
-                for (int j = 0; j < weeksJSONArray.length(); j++)
-                {
-                    weeks.add(weeksJSONArray.getString(j));
-                }
-
-                new Location(obj.getInt("id"), obj.getString("name"), organisation, weeks.toArray(new String[weeks.size()])).save(db);
+                new Location(obj.getInt("id"), obj.getString("name"), organisation).save(db);
             }
 
             db.setTransactionSuccessful();
@@ -135,12 +128,12 @@ public class Xedule
 
     public static void updateAttendees(Location location, ProgressBar progressBar)
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         db.beginTransaction();
 
         try
         {
-            JSONArray attendeesJSONArray = Xedule.getArray("attendees." + location.getId() + ".json");
+            JSONArray attendeesJSONArray = Xedule.getArray(location.getOrganisation().getId() + "/" + location.getId() + "/attendees.json");
 
             if (progressBar != null)
             {
@@ -152,7 +145,7 @@ public class Xedule
             {
                 JSONObject obj = attendeesJSONArray.getJSONObject(i);
 
-                new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getInt("type")).save(db);
+                new Attendee(obj.getInt("id"), obj.getString("name"), location, obj.getString("type")).save(db);
 
                 if (progressBar != null) progressBar.setProgress(i);
             }
@@ -169,50 +162,38 @@ public class Xedule
         }
     }
 
-    public static void updateEvents(int attendee, int year, int week)
+    public static void updateEvents(Attendee attendee, int year, int week)
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getWritableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         db.beginTransaction();
 
         db.delete("attendee_events_view", "attendee = ? AND year = ? AND week = ?",
-                new String[]{ String.valueOf(attendee), String.valueOf(year), String.valueOf(week) });
+                new String[]{ String.valueOf(attendee.getId()), String.valueOf(year), String.valueOf(week) });
 
         try
         {
-            JSONArray daysJSONArray = Xedule.getArray("weekschedule." + attendee + ".json?year=" + year + "&week=" + week);
+            JSONArray eventsJSONArray = Xedule.getArray(attendee.getLocation().getOrganisation().getId() + "/" + attendee.getLocation().getId() + "/" + attendee.getId() + "/schedule.json?year=" + year + "&week=" + week);
 
-            Event event;
-
-            for (int i = 0; i < daysJSONArray.length(); i++)
+            for (int j = 0; j < eventsJSONArray.length(); j++)
             {
-                if (daysJSONArray.isNull(i)) continue;
+                JSONObject obj = eventsJSONArray.getJSONObject(j);
 
-                JSONObject dayJSONObject = daysJSONArray.getJSONObject(i);
-                JSONArray eventsJSONArray = dayJSONObject.getJSONArray("events");
+                Event event = new Event(obj.getInt("year"), obj.getInt("week"), obj.getInt("day"),
+                        new Event.Time(obj.getString("start")), new Event.Time(obj.getString("end")),
+                        obj.getString("description"));
 
-                int day = "Mon Tue Wed Thu Fri Sat Sun".indexOf(dayJSONObject.getString("date").substring(0, 3)) / 4 + 1;
+                JSONArray attendees = obj.getJSONArray("attendees");
 
-                for (int j = 0; j < eventsJSONArray.length(); j++)
+                for (int k = 0; k < attendees.length(); k++)
                 {
-                    JSONObject eventJSONObject = eventsJSONArray.getJSONObject(j);
-
-                    event = new Event(year, week, day,
-                            new Event.Time(eventJSONObject.getString("start")), new Event.Time(eventJSONObject.getString("end")),
-                            eventJSONObject.getString("description"));
-
-                    JSONArray attendees = eventJSONObject.getJSONArray("attendees");
-
-                    for (int k = 0; k < attendees.length(); k++)
-                    {
-                        event.addAttendee(new Attendee(attendees.getInt(k)));
-                    }
-
-                    event.save(db);
+                    event.addAttendee(new Attendee(attendees.getInt(k)));
                 }
+
+                event.save(db);
             }
 
             ContentValues values = new ContentValues();
-            values.put("attendee", attendee);
+            values.put("attendee", attendee.getId());
             values.put("year", year);
             values.put("week", week);
             values.put("lastUpdate", System.currentTimeMillis() / 1000L);
@@ -222,7 +203,7 @@ public class Xedule
         }
         catch(JSONException e)
         {
-            Log.e("Xedule", "Couldn't update events for attendee #" + attendee, e);
+            Log.e("Xedule", "Couldn't update events for attendee #" + attendee.getId(), e);
         }
         finally
         {

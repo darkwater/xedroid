@@ -30,7 +30,7 @@ public class Organisation implements Comparable<Organisation>
 
     public boolean populate()
     {
-        SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
+        SQLiteDatabase db = Xedroid.getWritableDatabase();
         Cursor cursor = db.query("organisations", new String[]{ "id", "name" }, "id = " + id, null, null, null, "id", null);
 
         if (cursor == null || cursor.getCount() == 0) return false;
@@ -103,7 +103,7 @@ public class Organisation implements Comparable<Organisation>
         ArrayList<Location> output = new ArrayList<Location>();
 
         SQLiteDatabase db = new DatabaseOpenHelper(Xedroid.getContext()).getReadableDatabase();
-        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation", "weeks" }, "organisation = " + id, null, null, null, "name", null);
+        Cursor cursor = db.query("locations", new String[]{ "id", "name", "organisation" }, "organisation = " + id, null, null, null, "name", null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast())

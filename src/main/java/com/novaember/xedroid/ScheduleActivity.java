@@ -270,7 +270,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
                 if (force || attendee.getWeekScheduleAge(year, week) == 0)
                 {
-                    Xedule.updateEvents(attendee.getId(), year, week);
+                    Xedule.updateEvents(attendee, year, week);
                     Xedule.updateLocations(attendee.getLocation().getOrganisation());
                 }
 
@@ -403,27 +403,27 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
             DatePicker picker = dialog.getDatePicker();
 
-            String[] weeks = activity.getAttendee().getLocation().getWeeks();
+            // String[] weeks = activity.getAttendee().getLocation().getWeeks();
 
-            // Calculate minimum date
-            // [ "2014/35", "2014/36", ... ] -> [ "2014", "35" ]
-            String[] firstWeek = TextUtils.split(weeks[0], "/");
-            Calendar min = (Calendar) c.clone();
-            min.clear();
-            min.set(Calendar.YEAR, Integer.parseInt(firstWeek[0]));
-            min.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(firstWeek[1]));
+            // // Calculate minimum date
+            // // [ "2014/35", "2014/36", ... ] -> [ "2014", "35" ]
+            // String[] firstWeek = TextUtils.split(weeks[0], "/");
+            // Calendar min = (Calendar) c.clone();
+            // min.clear();
+            // min.set(Calendar.YEAR, Integer.parseInt(firstWeek[0]));
+            // min.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(firstWeek[1]));
 
-            // Calculate maximum date
-            String[] lastWeek = TextUtils.split(weeks[weeks.length - 1], "/");
-            Calendar max = (Calendar) c.clone();
-            max.clear();
-            max.set(Calendar.YEAR, Integer.parseInt(lastWeek[0]));
-            max.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(lastWeek[1]));
-            max.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            // // Calculate maximum date
+            // String[] lastWeek = TextUtils.split(weeks[weeks.length - 1], "/");
+            // Calendar max = (Calendar) c.clone();
+            // max.clear();
+            // max.set(Calendar.YEAR, Integer.parseInt(lastWeek[0]));
+            // max.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(lastWeek[1]));
+            // max.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 
-            // Configure picker
-            picker.setMinDate(min.getTimeInMillis());
-            picker.setMaxDate(max.getTimeInMillis());
+            // // Configure picker
+            // picker.setMinDate(min.getTimeInMillis());
+            // picker.setMaxDate(max.getTimeInMillis());
 
             return dialog;
         }
