@@ -7,7 +7,7 @@ buildscript
 
     dependencies
     {
-        classpath "com.android.tools.build:gradle:1.1.+"
+        classpath "com.android.tools.build:gradle:1.2.+"
     }
 }
 
@@ -20,12 +20,20 @@ repositories
 
 dependencies
 {
-    compile "com.android.support:appcompat-v7:21.0.+"
+    compile "com.android.support:appcompat-v7:23.0.+"
     compile 'com.jpardogo.materialtabstrip:library:1.0.9'
 }
 
 android
 {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig
+    {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 2
+        versionName "0.2"
+    }
 }
