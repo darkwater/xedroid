@@ -33,8 +33,16 @@ android
     {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 2
-        versionName "0.2"
+        versionCode 3
+        versionName "0.3"
+    }
+
+    buildTypes
+    {
+        debug
+        {
+            applicationIdSuffix ".debug"
+        }
     }
 }
 
