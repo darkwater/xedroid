@@ -86,9 +86,17 @@ public class LocationsFragment extends ListFragment
         if (getActivity() == null) return; // The activity could have been destroyed since we're coming
                                            //  from a background job
 
-        adapter = new ArrayAdapter<Location>(getActivity(), R.layout.location_item, locations);
+        ((ViewGroup) getView()).findViewById(R.id.list_loading).setVisibility(View.GONE);
 
-        setListAdapter(adapter);
+        if (locations.isEmpty())
+        {
+            ((ViewGroup) getView()).findViewById(R.id.list_empty).setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            adapter = new ArrayAdapter<Location>(getActivity(), R.layout.location_item, locations);
+            setListAdapter(adapter);
+        }
     }
 
     @Override

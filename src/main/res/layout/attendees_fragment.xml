@@ -19,15 +19,34 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray" />
 
-    <ListView android:id="@android:id/list"
+    <ListView
+            android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:drawSelectorOnTop="false"/>
+            android:drawSelectorOnTop="false" />
 
-    <TextView android:id="@android:id/empty"
+    <LinearLayout
+            android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Loading"/>
+            android:gravity="center|top">
+
+        <TextView
+                android:id="@+id/list_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Nothing found."
+                android:visibility="gone" />
+
+        <ProgressBar
+                android:id="@+id/list_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                style="@style/LoadingSpinner" />
+
+    </LinearLayout>
 
 </LinearLayout>

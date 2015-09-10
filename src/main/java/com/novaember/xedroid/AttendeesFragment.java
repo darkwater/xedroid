@@ -46,6 +46,7 @@ public class AttendeesFragment extends ListFragment
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3)
             {
+                if (adapter == null) return;
                 adapter.getFilter().filter(cs);
             }
 
@@ -111,8 +112,20 @@ public class AttendeesFragment extends ListFragment
 
     public void populateList(ArrayList<Attendee> attendees)
     {
-        adapter = new AttendeesAdapter(getActivity(), attendees);
-        setListAdapter(adapter);
+        if (getActivity() == null) return; // The activity could have been destroyed since we're coming
+                                           //  from a background job
+
+        ((ViewGroup) getView()).findViewById(R.id.list_loading).setVisibility(View.GONE);
+
+        if (attendees.isEmpty())
+        {
+            ((ViewGroup) getView()).findViewById(R.id.list_empty).setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            adapter = new AttendeesAdapter(getActivity(), attendees);
+            setListAdapter(adapter);
+        }
     }
 
     @Override

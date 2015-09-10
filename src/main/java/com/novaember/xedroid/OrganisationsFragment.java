@@ -73,9 +73,17 @@ public class OrganisationsFragment extends ListFragment
         if (getActivity() == null) return; // The activity could have been destroyed since we're coming
                                            //  from a background job
 
-        adapter = new ArrayAdapter<Organisation>(getActivity(), R.layout.organisation_item, organisations);
+        ((ViewGroup) getView()).findViewById(R.id.list_loading).setVisibility(View.GONE);
 
-        setListAdapter(adapter);
+        if (organisations.isEmpty())
+        {
+            ((ViewGroup) getView()).findViewById(R.id.list_empty).setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            adapter = new ArrayAdapter<Organisation>(getActivity(), R.layout.organisation_item, organisations);
+            setListAdapter(adapter);
+        }
     }
 
     @Override
