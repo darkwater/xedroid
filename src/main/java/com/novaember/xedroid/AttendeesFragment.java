@@ -86,6 +86,12 @@ public class AttendeesFragment extends ListFragment
         {
             throw new ClassCastException(activity.toString() + " must implement OnAttendeeSelectedListener");
         }
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
 
         ArrayList<Attendee> attendees = location.getAttendees();
         if (attendees.isEmpty())

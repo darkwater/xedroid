@@ -44,7 +44,11 @@ public class OrganisationsFragment extends ListFragment
         {
             throw new ClassCastException(activity.toString() + " must implement OnOrganisationSelectedListener");
         }
+    }
 
+    @Override
+    public void onStart()
+    {
         ArrayList<Organisation> organisations = Organisation.getAll();
         if (organisations.isEmpty())
         {
@@ -70,6 +74,8 @@ public class OrganisationsFragment extends ListFragment
 
     public void populateList(List<Organisation> organisations)
     {
+        super.onStart();
+
         if (getActivity() == null) return; // The activity could have been destroyed since we're coming
                                            //  from a background job
 

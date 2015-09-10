@@ -57,6 +57,12 @@ public class LocationsFragment extends ListFragment
         {
             throw new ClassCastException(activity.toString() + " must implement OnLocationSelectedListener");
         }
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
 
         ArrayList<Location> locations = organisation.getLocations();
         if (locations.isEmpty())
