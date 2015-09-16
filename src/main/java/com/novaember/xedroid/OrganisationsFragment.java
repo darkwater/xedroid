@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import android.app.Activity;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,10 +17,11 @@ import android.widget.ListView;
 
 import java.lang.ClassCastException;
 
-public class OrganisationsFragment extends ListFragment
+public class OrganisationsFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener
 {
     private OnOrganisationSelectedListener listener;
     private ArrayAdapter<Organisation> adapter;
+    private SwipeRefreshLayout swipeLayout;
 
     public interface OnOrganisationSelectedListener
     {
@@ -28,7 +30,13 @@ public class OrganisationsFragment extends ListFragment
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.organisations_fragment, container, false);
+        View v = inflater.inflate(R.layout.organisations_fragment, container, false);
+
+        swipeLayout = (SwipeRefreshLayout) ((ViewGroup) v).findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.colorPrimary);
+
+        return v;
     }
 
     @Override
@@ -52,24 +60,36 @@ public class OrganisationsFragment extends ListFragment
         ArrayList<Organisation> organisations = Organisation.getAll();
         if (organisations.isEmpty())
         {
-            new AsyncTask<Void, Void, ArrayList<Organisation>>()
-            {
-                protected ArrayList<Organisation> doInBackground(Void... _)
-                {
-                    Xedule.updateOrganisations();
-                    return Organisation.getAll();
-                }
-
-                protected void onPostExecute(ArrayList<Organisation> organisations)
-                {
-                    populateList(organisations);
-                }
-            }.execute();
+            refresh();
         }
         else
         {
             populateList(organisations);
         }
+    }
+
+    @Override
+    public void onRefresh()
+    {
+        refresh();
+    }
+
+    public void refresh()
+    {
+        new AsyncTask<Void, Void, ArrayList<Organisation>>()
+        {
+            protected ArrayList<Organisation> doInBackground(Void... _)
+            {
+                Xedule.updateOrganisations();
+                return Organisation.getAll();
+            }
+
+            protected void onPostExecute(ArrayList<Organisation> organisations)
+            {
+                populateList(organisations);
+                swipeLayout.setRefreshing(false);
+            }
+        }.execute();
     }
 
     public void populateList(List<Organisation> organisations)

@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import android.app.Activity;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,11 +17,12 @@ import android.widget.ListView;
 
 import java.lang.ClassCastException;
 
-public class LocationsFragment extends ListFragment
+public class LocationsFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener
 {
     private OnLocationSelectedListener listener;
     private ArrayAdapter<Location> adapter;
     private Organisation organisation;
+    private SwipeRefreshLayout swipeLayout;
 
     public interface OnLocationSelectedListener
     {
@@ -29,7 +31,13 @@ public class LocationsFragment extends ListFragment
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.locations_fragment, container, false);
+        View v = inflater.inflate(R.layout.locations_fragment, container, false);
+
+        swipeLayout = (SwipeRefreshLayout) ((ViewGroup) v).findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.colorPrimary);
+
+        return v;
     }
 
     public void setOrganisation(Organisation organisation)
@@ -67,24 +75,36 @@ public class LocationsFragment extends ListFragment
         ArrayList<Location> locations = organisation.getLocations();
         if (locations.isEmpty())
         {
-            new AsyncTask<Void, Void, ArrayList<Location>>()
-            {
-                protected ArrayList<Location> doInBackground(Void... _)
-                {
-                    Xedule.updateLocations(organisation);
-                    return organisation.getLocations();
-                }
-
-                protected void onPostExecute(ArrayList<Location> locations)
-                {
-                    populateList(locations);
-                }
-            }.execute();
+            refresh();
         }
         else
         {
             populateList(locations);
         }
+    }
+
+    @Override
+    public void onRefresh()
+    {
+        refresh();
+    }
+
+    public void refresh()
+    {
+        new AsyncTask<Void, Void, ArrayList<Location>>()
+        {
+            protected ArrayList<Location> doInBackground(Void... _)
+            {
+                Xedule.updateLocations(organisation);
+                return organisation.getLocations();
+            }
+
+            protected void onPostExecute(ArrayList<Location> locations)
+            {
+                populateList(locations);
+                swipeLayout.setRefreshing(false);
+            }
+        }.execute();
     }
 
     public void populateList(List<Location> locations)

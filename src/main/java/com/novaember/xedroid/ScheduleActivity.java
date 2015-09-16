@@ -29,6 +29,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -52,7 +53,8 @@ import android.widget.TextView;
 
 public class ScheduleActivity extends ActionBarActivity implements WeekScheduleFragment.OnEventSelectedListener,
                                                                    ListView.OnItemClickListener,
-                                                                   ListView.OnScrollListener
+                                                                   ListView.OnScrollListener,
+                                                                   SwipeRefreshLayout.OnRefreshListener
 {
     public final static int RECENTS_LIST_MAX_SIZE = 5;
 
@@ -61,6 +63,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
     private DrawerAdapter drawerAdapter;
     private EventReceiver currentFragment;
     private LinearLayout drawerFooter;
+    private SwipeRefreshLayout swipeLayout;
 
     private Attendee attendee;
     private int year;
@@ -130,7 +133,12 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         getSupportFragmentManager().beginTransaction().add(R.id.schedule_fragment, weekScheduleFragment).commit();
         currentFragment = weekScheduleFragment;
 
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.colorPrimary);
+
         updateActionBarTitle();
+        swipeLayout.setRefreshing(true);
         refresh(false);
 
         ListView drawer = (ListView) findViewById(R.id.schedule_drawer);
@@ -149,6 +157,12 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
         bar.setHomeButtonEnabled(true);
+    }
+
+    @Override
+    public void onRefresh()
+    {
+        refresh(true);
     }
 
     public void onItemClick(AdapterView parent, View view, int position, long id)
@@ -275,12 +289,12 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
                 }
 
                 runOnUiThread(new Runnable()
-                        {
-                            public void run()
-                            {
-                                currentFragment.setEvents(attendee.getEvents(year, week));
-                            }
-                        });
+                {
+                    public void run()
+                    {
+                        currentFragment.setEvents(attendee.getEvents(year, week));
+                    }
+                });
 
                 return null;
             }
@@ -288,6 +302,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             protected void onPostExecute(Void _)
             {
                 refreshing = false;
+                swipeLayout.setRefreshing(false);
             }
         }.execute();
     }

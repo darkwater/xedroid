@@ -4,10 +4,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <FrameLayout
-            android:id="@+id/schedule_fragment"
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+        <FrameLayout
+                android:id="@+id/schedule_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
             android:layout_width="260dp"

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,11 +25,12 @@ import android.widget.TextView;
 
 import java.lang.ClassCastException;
 
-public class AttendeesFragment extends ListFragment
+public class AttendeesFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener
 {
     private OnAttendeeSelectedListener listener;
     private AttendeesAdapter adapter;
     private Location location;
+    private SwipeRefreshLayout swipeLayout;
 
     public interface OnAttendeeSelectedListener
     {
@@ -38,6 +40,10 @@ public class AttendeesFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.attendees_fragment, container, false);
+
+        swipeLayout = (SwipeRefreshLayout) ((ViewGroup) view).findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.colorPrimary);
 
         EditText searchInput = (EditText) view.findViewById(R.id.attendees_search);
 
@@ -96,24 +102,36 @@ public class AttendeesFragment extends ListFragment
         ArrayList<Attendee> attendees = location.getAttendees();
         if (attendees.isEmpty())
         {
-            new AsyncTask<Void, Void, ArrayList<Attendee>>()
-            {
-                protected ArrayList<Attendee> doInBackground(Void... _)
-                {
-                    Xedule.updateAttendees(location, null);
-                    return location.getAttendees();
-                }
-
-                protected void onPostExecute(ArrayList<Attendee> attendees)
-                {
-                    populateList(attendees);
-                }
-            }.execute();
+            refresh();
         }
         else
         {
             populateList(attendees);
         }
+    }
+
+    @Override
+    public void onRefresh()
+    {
+        refresh();
+    }
+
+    public void refresh()
+    {
+        new AsyncTask<Void, Void, ArrayList<Attendee>>()
+        {
+            protected ArrayList<Attendee> doInBackground(Void... _)
+            {
+                Xedule.updateAttendees(location, null);
+                return location.getAttendees();
+            }
+
+            protected void onPostExecute(ArrayList<Attendee> attendees)
+            {
+                populateList(attendees);
+                swipeLayout.setRefreshing(false);
+            }
+        }.execute();
     }
 
     public void populateList(ArrayList<Attendee> attendees)
