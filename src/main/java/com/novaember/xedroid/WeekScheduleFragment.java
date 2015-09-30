@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -98,7 +99,8 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
     {
         super.onResume();
 
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(Util.getPx(8, getActivity().getResources()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(Util.getPx(8, getActivity().getResources()));
     }
 
     public void setEvents(final ArrayList<Event> events)

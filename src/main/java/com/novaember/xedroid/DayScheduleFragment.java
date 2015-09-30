@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -83,7 +84,8 @@ public class DayScheduleFragment extends Fragment
     {
         super.onStart();
 
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            ((ActionBarActivity) getActivity()).getSupportActionBar().setElevation(0);
     }
 
     public static class DaySchedulePagerAdapter extends FragmentPagerAdapter

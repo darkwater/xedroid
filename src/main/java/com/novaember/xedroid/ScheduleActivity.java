@@ -21,6 +21,7 @@ import android.content.res.Configuration;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -172,6 +173,8 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
     {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return; // TODO: 'Fake' shadow if pre-lollipop?
+
         if (firstVisibleItem + visibleItemCount != totalItemCount) return; // We're not anywhere near the bottom
 
         View bottomView = view.getChildAt(view.getChildCount() - 1);

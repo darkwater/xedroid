@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -111,7 +112,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
         eventView.findViewById(R.id.weekschedule_event_color).setBackgroundColor(event.getColor());
 
-        eventView.setElevation(Util.getPx(4, context.getResources()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            eventView.setElevation(Util.getPx(4, context.getResources()));
 
         eventView.setLayoutParams(params);
         eventView.setOnClickListener(self);
