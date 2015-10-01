@@ -1,5 +1,7 @@
 package com.novaember.xedroid;
 
+import android.widget.ListView;
+
 import java.util.ArrayList;
 
 public interface EventReceiver

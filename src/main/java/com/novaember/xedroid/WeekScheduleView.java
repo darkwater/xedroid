@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class WeekScheduleView extends RelativeLayout implements View.OnClickListener, View.OnLongClickListener, EventReceiver
@@ -40,6 +41,7 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
 
     private final Context context;
     private final WeekScheduleView self;
+    private ScrollView scrollView;
 
     private ArrayList<EventView> events;
     private ArrayList<ViewGroup> dayColumns;
@@ -79,6 +81,8 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
             marker.setLayoutParams(params);
             dayColumns.get(0).addView(marker);
         }
+
+        scrollView = (ScrollView) findViewById(R.id.scrollview);
     }
 
     public void addEvent(final Event event)
@@ -133,7 +137,13 @@ public class WeekScheduleView extends RelativeLayout implements View.OnClickList
             column.removeViews(1, column.getChildCount() - 1);
         }
     }
-    
+
+    public boolean canScrollUp()
+    {
+        Log.d("Xedroid", "Can scroll up? " + scrollView.canScrollVertically(-1));
+        return scrollView.canScrollVertically(-1);
+    }
+
     public void setEvents(ArrayList<Event> input)
     {
         clear();

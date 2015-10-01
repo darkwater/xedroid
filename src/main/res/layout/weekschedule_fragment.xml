@@ -1,5 +1,11 @@
-<com.novaember.xedroid.WeekScheduleView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/weekschedule"
+<com.novaember.xedroid.ScheduleSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+    <com.novaember.xedroid.WeekScheduleView
+            android:id="@+id/weekschedule"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+</com.novaember.xedroid.ScheduleSwipeRefreshLayout>

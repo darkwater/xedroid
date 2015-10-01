@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -34,14 +35,16 @@ import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class WeekScheduleFragment extends Fragment implements EventReceiver
+public class WeekScheduleFragment extends Fragment implements EventReceiver,
+                                                              SwipeRefreshLayout.OnRefreshListener
 {
-    private OnEventSelectedListener listener;
+    private ScheduleActivity parent;
     private WeekScheduleView weekScheduleView;
     private Attendee attendee;
     private int year;
     private int week;
     private int weekday;
+    private ScheduleSwipeRefreshLayout swipeLayout;
 
     private boolean refreshing;
 
@@ -52,19 +55,24 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        weekScheduleView = (WeekScheduleView) inflater.inflate(R.layout.weekschedule_fragment, container, false);
+        swipeLayout = (ScheduleSwipeRefreshLayout) inflater.inflate(R.layout.weekschedule_fragment, container, false);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.colorPrimary);
+        swipeLayout.setContainer(this);
+
+        weekScheduleView = (WeekScheduleView) swipeLayout.findViewById(R.id.weekschedule);
         weekScheduleView.setWeek(year, week);
 
         weekScheduleView.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                if (listener != null) listener.onEventSelected(((WeekScheduleView.EventView) view).getEvent());
-                else Log.w("Xedroid", "WeekScheduleFragment's listener is null!");
+                if (parent != null) parent.onEventSelected(((WeekScheduleView.EventView) view).getEvent());
+                else Log.w("Xedroid", "WeekScheduleFragment's parent is null!");
             }
         });
 
-        return (View) weekScheduleView;
+        return (View) swipeLayout;
     }
 
     @Override
@@ -74,11 +82,11 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
 
         try
         {
-            listener = (OnEventSelectedListener) activity;
+            parent = (ScheduleActivity) activity;
         }
         catch (ClassCastException e)
         {
-            throw new ClassCastException(activity.toString() + " must implement OnEventSelectedListener");
+            throw new ClassCastException(activity.toString() + " can only be used by ScheduleActivity");
         }
 
         Timer timer = new Timer();
@@ -115,6 +123,22 @@ public class WeekScheduleFragment extends Fragment implements EventReceiver
         this.week = week;
 
         if (weekScheduleView != null) weekScheduleView.setWeek(year, week);
+    }
+
+    public boolean canScrollUp()
+    {
+        return weekScheduleView.canScrollUp();
+    }
+
+    public void setRefreshing(boolean refreshing)
+    {
+        swipeLayout.setRefreshing(refreshing);
+    }
+
+    @Override
+    public void onRefresh()
+    {
+        parent.refresh(true);
     }
 
     private class InvalidateTimer extends TimerTask

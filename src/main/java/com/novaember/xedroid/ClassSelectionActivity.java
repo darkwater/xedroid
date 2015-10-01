@@ -46,7 +46,7 @@ public class ClassSelectionActivity extends ActionBarActivity implements Organis
             {
                 OrganisationsFragment organisationsFragment = new OrganisationsFragment();
 
-                getSupportFragmentManager().beginTransaction().add(R.id.classselection_fragment, organisationsFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.classselection_fragment, organisationsFragment).commit();
             }
 //            else // Multi-pane view
 //            {
