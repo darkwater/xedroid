@@ -4,13 +4,6 @@
     tools:context="com.novaember.xedroid.MainActivity" >
 
     <item
-        android:id="@+id/weekschedule_weekselect"
-        android:icon="@drawable/ic_today_white_24dp"
-        android:orderInCategory="20"
-        app:showAsAction="always"
-        android:title="@string/weekschedule_weekselect" />
-
-    <item
         android:id="@+id/weekschedule_star"
         android:checkable="true"
         android:orderInCategory="50"
@@ -18,10 +11,10 @@
         android:title="@string/weekschedule_star" />
 
     <item
-        android:id="@+id/weekschedule_refresh"
-        android:icon="@drawable/ic_refresh_white_24dp"
-        android:orderInCategory="80"
-        app:showAsAction="ifRoom"
-        android:title="@string/action_refresh" />
+        android:id="@+id/weekschedule_weekselect"
+        android:icon="@drawable/ic_today_white_24dp"
+        android:orderInCategory="20"
+        app:showAsAction="always"
+        android:title="@string/weekschedule_weekselect" />
 
 </menu>

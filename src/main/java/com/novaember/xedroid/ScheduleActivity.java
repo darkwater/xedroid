@@ -354,13 +354,6 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
             return true;
         }
 
-        if (id == R.id.weekschedule_refresh)
-        {
-            refresh(true);
-
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
