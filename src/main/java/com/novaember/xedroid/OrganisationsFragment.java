@@ -57,6 +57,8 @@ public class OrganisationsFragment extends ListFragment implements SwipeRefreshL
     @Override
     public void onStart()
     {
+        super.onStart();
+
         ArrayList<Organisation> organisations = Organisation.getAll();
         if (organisations.isEmpty())
         {
