@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+            android:key="pref_api_endpoint"
+            android:title="@string/pref_api_endpoint_title"
+            android:summary="@string/pref_api_endpoint_summary"
+            android:defaultValue="@string/pref_api_endpoint_default" />
+
+    <ListPreference
+            android:key="pref_schedule_color_key"
+            android:title="@string/pref_schedule_color_key_title"
+            android:summary="@string/pref_schedule_color_key_summary"
+            android:dialogTitle="@string/pref_schedule_color_key_title"
+            android:entries="@array/pref_schedule_color_key_entries"
+            android:entryValues="@array/pref_schedule_color_key_values"
+            android:defaultValue="@string/pref_schedule_color_key_default" />
+
+    <Preference
+            android:title="@string/pref_version_title"
+            android:summary="@string/pref_version_summary"
+            android:selectable="false" />
+
+</PreferenceScreen>

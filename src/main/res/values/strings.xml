@@ -24,4 +24,29 @@
     <string name="drawer_open">Open navigatie</string>
     <string name="drawer_close">Sluit navigatie</string>
 
+    <!-- Preferences -->
+
+    <string name="pref_schedule_color_key_title">Rooster kleuren</string>
+    <string name="pref_schedule_color_key_summary">Kies hoe de kleuren op het rooster worden bepaald</string>
+    <string name="pref_schedule_color_key_default">facility</string>
+
+    <string-array name="pref_schedule_color_key_values">
+        <item>class</item>
+        <item>staff</item>
+        <item>facility</item>
+    </string-array>
+
+    <string-array name="pref_schedule_color_key_entries">
+        <item>Klas</item>
+        <item>Docent</item>
+        <item>Locatie</item>
+    </string-array>
+
+    <string name="pref_api_endpoint_title">API eindpunt</string>
+    <string name="pref_api_endpoint_summary">Locatie van de API om te gebruiken</string>
+    <string name="pref_api_endpoint_default">http://xedule.novaember.com/</string>
+
+    <string name="pref_version_title">Versie</string>
+    <string name="pref_version_summary">@string/version</string>
+
 </resources>

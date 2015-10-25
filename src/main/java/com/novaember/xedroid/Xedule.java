@@ -12,7 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ProgressBar;
 
@@ -20,7 +22,12 @@ public class Xedule
 {
     private static int cacheTimeout = 60; // in seconds
     private static boolean cacheEnabled = false;
-    private static String apiSite = "http://xedule.novaember.com/";
+
+    public static String getApiLocation()
+    {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(Xedroid.getContext());
+        return sharedPref.getString("pref_api_endpoint", "http://xedule.novaember.com/");
+    }
 
     public static JSONArray getArray(String location) throws JSONException
     {
@@ -56,7 +63,7 @@ public class Xedule
 
         if (output == null) try
         {
-            output = Fetcher.downloadUrl(apiSite + location);
+            output = Fetcher.downloadUrl(getApiLocation() + location);
 
             FileWriter cacheWriter = new FileWriter(cacheFile);
             cacheWriter.write(output);

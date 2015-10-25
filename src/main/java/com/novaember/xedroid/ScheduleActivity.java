@@ -359,7 +359,8 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void openSettings(View v)
     {
-        // stub
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 
     public void openHelpFeedback(View v)

@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.novaember.xedroid">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <application
+    <application android:label="@string/app_name"
             android:allowBackup="true"
             android:name="com.novaember.xedroid.Xedroid"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name"
             android:theme="@style/AppTheme">
 
-        <activity
-                android:name=".ScheduleActivity"
+        <activity android:name=".ScheduleActivity"
                 android:label="@string/app_name">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
-        <activity
-                android:name=".ClassSelectionActivity"
+        <activity android:name=".ClassSelectionActivity"
                 android:label="@string/app_name">
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.novaember.xedroid.WeekScheduleActivity" />
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.ClassSelectionActivity" />
+
+        </activity>
+
+        <activity android:name=".SettingsActivity"
+                android:label="@string/app_name">
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.novaember.xedroid.ClassSelectionActivity" />
+
         </activity>
 
     </application>

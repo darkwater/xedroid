@@ -4,9 +4,11 @@ import java.lang.Comparable;
 import java.util.ArrayList;
 
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Event implements Comparable<Event>
@@ -158,14 +160,29 @@ public class Event implements Comparable<Event>
     {
         if (color != 0) return color;
 
-        ArrayList<Attendee> facilities = getFacilities();
-        if (facilities.isEmpty())
+        ArrayList<Attendee> source = null;
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(Xedroid.getContext());
+        switch (sharedPref.getString("pref_schedule_color_key", "facility"))
+        {
+            case "class":
+                source = getClasses();
+                break;
+            case "staff":
+                source = getStaffs();
+                break;
+            case "facility":
+                source = getFacilities();
+                break;
+        }
+
+        if (source == null || source.isEmpty())
         {
             color = 0xff888888;
             return color;
         }
 
-        String in = facilities.get(0).getName();
+        String in = source.get(0).getName();
         int sum = 0;
 
         for (int i = 0; i < in.length(); i++)
