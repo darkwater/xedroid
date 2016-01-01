@@ -1,6 +1,5 @@
-nnoremap <leader><leader> :!gradle --daemon installDebug<CR>
+nnoremap <leader><leader> :!./gradlew --daemon installDebug<CR>
 
 let g:ctrlp_custom_ignore = '\v[\/](build|gradle)$'
 
-so .syntastic-classpath
-let g:syntastic_java_javac_classpath .= ':/opt/android-sdk/platforms/android-23/*.jar:./build/intermediates/classes/debug/'
+" vim: ft=vim

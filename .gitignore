@@ -32,4 +32,3 @@ proguard/
 Session.vim
 .netrwhist
 *~
-.syntastic-classpath

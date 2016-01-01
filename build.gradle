@@ -49,27 +49,3 @@ android
         variant.resValue "string", "version", "v" + variant.versionName + " (" + variant.versionCode + ")"
     }
 }
-
-// create syntastic classpath files
-task vimFiles << {
-    def classpathFiles = new HashSet<String>()
-    def addJars = { proj ->
-        proj.configurations.each { conf ->
-            conf.each { jar ->
-                classpathFiles.add(jar)
-            }
-        }
-        proj.sourceSets.each { srcSet ->
-            srcSet.java.srcDirs.each { dir ->
-                println dir.absolutePath
-                classpathFiles.add(dir.absolutePath)
-            }
-        }
-    }
-    getChildProjects().each { proj ->
-        addJars(proj.value)
-    }
-    addJars(rootProject)
-
-    new File(rootProject.projectDir.absolutePath + "/.syntastic-classpath").text = "let g:syntastic_java_javac_classpath = \""+classpathFiles.collect().join(":") + "\""
-}
