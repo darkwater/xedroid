@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
+    <!-- EditTextPreference
             android:key="pref_api_endpoint"
             android:title="@string/pref_api_endpoint_title"
             android:summary="@string/pref_api_endpoint_summary"
-            android:defaultValue="@string/pref_api_endpoint_default" />
+            android:defaultValue="@string/pref_api_endpoint_default" /-->
 
     <ListPreference
             android:key="pref_schedule_color_key"

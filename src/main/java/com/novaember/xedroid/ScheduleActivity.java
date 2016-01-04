@@ -236,7 +236,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void setDate(Calendar c)
     {
-        year = c.get(Calendar.YEAR)
+        year = c.get(Calendar.YEAR);
         week = c.get(Calendar.WEEK_OF_YEAR);
         weekday = c.get(Calendar.DAY_OF_WEEK);
 
@@ -362,11 +362,6 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
     {
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
         startActivity(settingsIntent);
-    }
-
-    public void openHelpFeedback(View v)
-    {
-        // stub
     }
 
     public void showDatePickerDialog()

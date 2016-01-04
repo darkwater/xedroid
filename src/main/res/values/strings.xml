@@ -43,7 +43,7 @@
     </string-array>
 
     <string name="pref_api_endpoint_title">API eindpunt</string>
-    <string name="pref_api_endpoint_summary">Locatie van de API om te gebruiken</string>
+    <string name="pref_api_endpoint_summary">Adres van de API om te gebruiken</string>
     <string name="pref_api_endpoint_default">http://xedule.novaember.com/</string>
 
     <string name="pref_version_title">Versie</string>
