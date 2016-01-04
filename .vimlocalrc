@@ -1,4 +1,4 @@
-nnoremap <leader><leader> :!./gradlew --daemon installDebug<CR>
+nnoremap <leader><leader> :sp term://./gradlew\ --daemon\ installDebug<CR>a
 
 let g:ctrlp_custom_ignore = '\v[\/](build|gradle)$'
 

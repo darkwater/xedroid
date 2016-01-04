@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -121,7 +122,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
         if (year == 1970 && week == 1)
         {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(new Locale("nl", "NL"));
             year = calendar.get(Calendar.YEAR);
             week = calendar.get(Calendar.WEEK_OF_YEAR);
             weekday = calendar.get(Calendar.DAY_OF_WEEK);
@@ -224,7 +225,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public Calendar getDate()
     {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(new Locale("nl", "NL"));
         c.clear();
         c.set(Calendar.YEAR, year);
         c.set(Calendar.WEEK_OF_YEAR, week);
@@ -235,7 +236,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
     public void setDate(Calendar c)
     {
-        year = c.get(Calendar.YEAR);
+        year = c.get(Calendar.YEAR)
         week = c.get(Calendar.WEEK_OF_YEAR);
         weekday = c.get(Calendar.DAY_OF_WEEK);
 
@@ -427,8 +428,7 @@ public class ScheduleActivity extends ActionBarActivity implements WeekScheduleF
 
         public void onDateSet(DatePicker view, int year, int month, int day)
         {
-            Calendar c = Calendar.getInstance();
-            c.clear();
+            Calendar c = Calendar.getInstance(new Locale("nl", "NL"));
             c.set(Calendar.YEAR, year);
             c.set(Calendar.MONTH, month);
             c.set(Calendar.DAY_OF_MONTH, day);
