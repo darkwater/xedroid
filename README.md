@@ -1,3 +1,5 @@
+**Note**: Xedroid is no longer actively developed
+
 Xedroid
 =======
 
